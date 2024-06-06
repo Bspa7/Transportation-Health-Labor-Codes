@@ -14,7 +14,6 @@ data_dir       <- file.path(base_dir, "data")
 output_folder  <- file.path(base_dir, "outputs")
 
 # ----
-
 # 1. Definitions and functions -----------------------------------------------------
 
 
@@ -55,13 +54,12 @@ centrar_puntaje <- function(df) {
 }
 
 # Define a function to create all set of estimations
-# Define a function to create all set of estimations in cutoff=30
 run_estimations <- function(data, var_name, cutoff_var, df_name) {
-  # Define time window
-  years <- 2013:2019
-  quarters <- 1:4
+  # Definir ventana de tiempo
+  years <- 2011:2019
+  quarters <- 2:2
   
-  # Empty data frame to save results
+  # Dataframe vacío para guardar resultados
   results_df <- data.frame(
     coef_robust = numeric(),
     se_robust = numeric(),
@@ -75,48 +73,66 @@ run_estimations <- function(data, var_name, cutoff_var, df_name) {
     stringsAsFactors = FALSE
   )
   
-  # Nested loop for each year and quarter
+  # Bucle anidado para cada año y trimestre
   for (year in years) {
     for (qtr in quarters) {
-      # Filter the data for the specific quarter and year
+      # Filtrar los datos para el trimestre y año específicos
       data_subset <- data %>%
-        filter(year(quarterly_date) == year & quarter(quarterly_date) == qtr)
+        filter(year(quarterly_date) == year & quarter(quarterly_date) == qtr) %>%
+        drop_na(all_of(c(var_name, cutoff_var)))
       
-      # Make the estimate
-      est <- rdrobust(data_subset[[var_name]], data_subset[[cutoff_var]], all=TRUE)
-      summary(est)
-      
-      # Extract values corresponding to the robust estimate
-      coef_robust <- est$coef["Robust", ]
-      se_robust <- est$se["Robust", ]
-      pv_robust <- est$pv["Robust", ]
-      ci_lower_robust <- est$ci["Robust", "CI Lower"]
-      ci_upper_robust <- est$ci["Robust", "CI Upper"]
-      
-      # Get sample sizes
-      N1 <- est$N[1]
-      N2 <- est$N[2]
-      
-      # Create a temporary data frame with the current results
-      temp_df <- data.frame(
-        coef_robust = coef_robust,
-        se_robust = se_robust,
-        pv_robust = pv_robust,
-        ci_lower_robust = ci_lower_robust,
-        ci_upper_robust = ci_upper_robust,
-        N1 = N1,
-        N2 = N2,
-        period = paste0(year, "q", qtr),
-        variable = var_name,
-        stringsAsFactors = FALSE
-      )
-      
-      # Add the current results to the results data frame
-      results_df <- rbind(results_df, temp_df)
+      # Verificar si hay suficientes datos para realizar la estimación
+      if (nrow(data_subset) > 20) {  # Ajusta el umbral según sea necesario
+        # Imprimir información actual
+        cat("Variable:", var_name, "Cutoff:", cutoff_var, "Trimestre:", paste0(year, "q", qtr), "Hora:", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n")
+        
+        # Realizar la estimación
+        est <- tryCatch(
+          {
+            rdrobust(data_subset[[var_name]], data_subset[[cutoff_var]], all=TRUE)
+          },
+          error = function(e) {
+            message(paste("Error en el año", year, "trimestre", qtr, ":", e$message))
+            return(NULL)
+          }
+        )
+        
+        if (!is.null(est)) {
+          # Extraer valores correspondientes a la estimación robusta
+          coef_robust <- est$coef["Robust", ]
+          se_robust <- est$se["Robust", ]
+          pv_robust <- est$pv["Robust", ]
+          ci_lower_robust <- est$ci["Robust", "CI Lower"]
+          ci_upper_robust <- est$ci["Robust", "CI Upper"]
+          
+          # Obtener tamaños de muestra
+          N1 <- est$N[1]
+          N2 <- est$N[2]
+          
+          # Crear un dataframe temporal con los resultados actuales
+          temp_df <- data.frame(
+            coef_robust = coef_robust,
+            se_robust = se_robust,
+            pv_robust = pv_robust,
+            ci_lower_robust = ci_lower_robust,
+            ci_upper_robust = ci_upper_robust,
+            N1 = N1,
+            N2 = N2,
+            period = paste0(year, "q", qtr),
+            variable = var_name,
+            stringsAsFactors = FALSE
+          )
+          
+          # Añadir los resultados actuales al dataframe de resultados
+          results_df <- rbind(results_df, temp_df)
+        }
+      } else {
+        message(paste("Insuficientes datos para el año", year, "trimestre", qtr))
+      }
     }
   }
   
-  # Assign the resulting data frame to the specified name
+  # Asignar el dataframe resultante al nombre especificado
   assign(df_name, results_df, envir = .GlobalEnv)
 }
 
@@ -124,7 +140,6 @@ run_estimations <- function(data, var_name, cutoff_var, df_name) {
 
 
 # ----
-
 # 2. Initial databases ------------------------------------------------------------
 
 # Databases - SISBEN and MASTER
@@ -155,7 +170,6 @@ main_pila         <- open_dataset(PILA_history_file) %>%
 
 # ----
 
-
 # 3. Modified databases to estimations -----------------------------------------
 
 # 3.1. RIPS: panel at personabasicaid-quarter level outcomes -------------------
@@ -169,6 +183,7 @@ rips_pbid <- main_rips %>%
   )
 
 rips_pbid <- rips_pbid %>%
+  filter(year>=2012 & year<=2019) %>% 
   mutate(
     genero    = if_else(sexo == 1, 1, 0),
     estrato_1 = if_else(estrato == 1, 1, 0),
@@ -306,6 +321,12 @@ pila_pbid <- main_pila %>%
   )
 
 pila_pbid <- pila_pbid %>% 
+  filter(year>=2012 & year<=2019) %>%   
+  mutate(
+    asalariado  = if_else(tipo_cotizante == 1, 1, 0)
+  )
+
+pila_pbid <- pila_pbid %>% 
   collect
 
 gc()
@@ -320,8 +341,7 @@ pila_pbid <- pila_pbid %>%
 
 # ----
 
-
-# 4. ESTIMATES -----------------------------------------------------------------
+# 4. Estimations ---------------------------------------------------------------
 
 rips_est <- rips_pbid %>%
   mutate(quarterly_date = as.Date(quarterly_date)) %>% 
@@ -335,12 +355,9 @@ pila_est <- pila_pbid %>%
 rm(rips_pbid, pila_pbid)
 gc()
 
-pila_est <- pila_est %>% 
-  mutate(
-    asalariado  = if_else(tipo_cotizante == 1, 1, 0)
-  )
+# ----
 
-# RIPS
+# Estimations: RIPS ------------------------------------------------------------
 
 run_estimations(rips_est, "genero", "cutoff30", "rips30_genero")
 run_estimations(rips_est, "estrato_1", "cutoff30", "rips30_estrato1")
@@ -349,7 +366,7 @@ run_estimations(rips_est, "estrato_3", "cutoff30", "rips30_estrato3")
 run_estimations(rips_est, "estrato_4", "cutoff30", "rips30_estrato4")
 run_estimations(rips_est, "estrato_5", "cutoff30", "rips30_estrato5")
 run_estimations(rips_est, "estrato_6", "cutoff30", "rips30_estrato6")
-run_estimations(rips_est, "educacion", "cutoff30", "rips30_estrato7")
+run_estimations(rips_est, "educacion", "cutoff30", "rips30_educacion")
 run_estimations(rips_est, "edad_RIPS", "cutoff30", "rips30_edad")
 run_estimations(rips_est, "n_visitas", "cutoff30", "rips30_visitas")
 run_estimations(rips_est, "c_preven" , "cutoff30", "rips30_c_prev")
@@ -370,7 +387,7 @@ run_estimations(rips_est, "estrato_3", "cutoff40", "rips40_estrato3")
 run_estimations(rips_est, "estrato_4", "cutoff40", "rips40_estrato4")
 run_estimations(rips_est, "estrato_5", "cutoff40", "rips40_estrato5")
 run_estimations(rips_est, "estrato_6", "cutoff40", "rips40_estrato6")
-run_estimations(rips_est, "educacion", "cutoff40", "rips40_estrato7")
+run_estimations(rips_est, "educacion", "cutoff40", "rips40_educacion")
 run_estimations(rips_est, "edad_RIPS", "cutoff40", "rips40_edad")
 run_estimations(rips_est, "n_visitas", "cutoff40", "rips40_visitas")
 run_estimations(rips_est, "c_preven" , "cutoff40", "rips40_c_prev")
@@ -384,7 +401,50 @@ run_estimations(rips_est, "n_procedimientos", "cutoff40", "rips40_proc")
 run_estimations(rips_est, "n_urgencias", "cutoff40", "rips40_urgencias")
 
 
-# PILA
+# Crear una lista de todos los dataframes
+list_est_rips30 <- list(
+  rips30_genero, rips30_estrato1, rips30_estrato2, rips30_estrato3, rips30_estrato4, 
+  rips30_estrato5, rips30_estrato6,rips30_educacion, rips30_edad, rips30_visitas, 
+  rips30_c_prev, rips30_c_pren, rips30_c_cancer, rips30_c_cardio, rips30_c_respir, 
+  rips30_consultas, rips30_hosp, rips30_proc, rips30_urgencias
+)
+list_est_rips40 <- list(
+  rips40_genero, rips40_estrato1, rips40_estrato2, rips40_estrato3, rips40_estrato4, 
+  rips40_estrato5, rips40_estrato6, rips40_educacion, rips40_edad, rips40_visitas, 
+  rips40_c_prev, rips40_c_pren, rips40_c_cancer, rips40_c_cardio, rips40_c_respir, 
+  rips40_consultas, rips40_hosp, rips40_proc, rips40_urgencias
+)
+
+# Combinar todos los dataframes en uno solo
+est_rips30 <- bind_rows(list_est_rips30)
+est_rips40 <- bind_rows(list_est_rips40)
+
+# Guardar el dataframe combinado en formato .parquet
+write_parquet(est_rips30, "D:/Steban Pineda/OneDrive/Escritorio/estimaciones_rips30.parquet")
+write_parquet(est_rips40, "D:/Steban Pineda/OneDrive/Escritorio/estimaciones_rips40.parquet")
+
+
+estimaciones_list_objects <- c(
+  "rips30_genero", "rips30_estrato1", "rips30_estrato2", "rips30_estrato3", "rips30_estrato4", 
+  "rips30_estrato5", "rips30_estrato6", "rips30_educacion", "rips30_edad", "rips30_visitas", 
+  "rips30_c_prev", "rips30_c_pren", "rips30_c_cancer", "rips30_c_cardio", "rips30_c_respir", 
+  "rips30_consultas", "rips30_hosp", "rips30_proc", "rips30_urgencias",
+  "rips40_genero", "rips40_estrato1", "rips40_estrato2", "rips40_estrato3", "rips40_estrato4", 
+  "rips40_estrato5", "rips40_estrato6", "rips40_educacion", "rips40_edad", "rips40_visitas", 
+  "rips40_c_prev", "rips40_c_pren", "rips40_c_cancer", "rips40_c_cardio", "rips40_c_respir", 
+  "rips40_consultas", "rips40_hosp", "rips40_proc", "rips40_urgencias"
+)
+
+# Eliminar los objetos del entorno global
+rm(list = estimaciones_list_objects, envir = .GlobalEnv)
+
+# Confirmar que los objetos se eliminaron
+print(ls())
+
+# ----
+
+# Estimations: PILA ------------------------------------------------------------
+
 run_estimations(pila_est, "genero", "cutoff30", "pila30_genero")
 run_estimations(pila_est, "estrato_1", "cutoff30", "pila30_estrato1")
 run_estimations(pila_est, "estrato_2", "cutoff30", "pila30_estrato2")
@@ -392,12 +452,12 @@ run_estimations(pila_est, "estrato_3", "cutoff30", "pila30_estrato3")
 run_estimations(pila_est, "estrato_4", "cutoff30", "pila30_estrato4")
 run_estimations(pila_est, "estrato_5", "cutoff30", "pila30_estrato5")
 run_estimations(pila_est, "estrato_6", "cutoff30", "pila30_estrato6")
-run_estimations(pila_est, "educacion", "cutoff30", "pila30_estrato7")
+run_estimations(pila_est, "educacion", "cutoff30", "pila30_educacion")
 run_estimations(pila_est, "tipo_cotizante", "cutoff30", "pila30_tipo_czte")
 run_estimations(pila_est, "n_registros",    "cutoff30", "pila30_registros")
 run_estimations(pila_est, "ibc_salud" ,     "cutoff30", "pila30_ibc_salud")
 run_estimations(pila_est, "sal_dias_cot" ,  "cutoff30", "pila30_sal_dias_cot")
-run_estimations(pila_est, "edad_PILA" ,     "cutoff30", "pila30_edad_pila")
+run_estimations(pila_est, "edad_PILA" ,     "cutoff30", "pila30_edad")
 
 
 run_estimations(pila_est, "genero", "cutoff40", "pila40_genero")
@@ -407,120 +467,47 @@ run_estimations(pila_est, "estrato_3", "cutoff40", "pila40_estrato3")
 run_estimations(pila_est, "estrato_4", "cutoff40", "pila40_estrato4")
 run_estimations(pila_est, "estrato_5", "cutoff40", "pila40_estrato5")
 run_estimations(pila_est, "estrato_6", "cutoff40", "pila40_estrato6")
-run_estimations(pila_est, "educacion", "cutoff40", "pila40_estrato7")
+run_estimations(pila_est, "educacion", "cutoff40", "pila40_educacion")
 run_estimations(pila_est, "n_registros",    "cutoff40", "pila40_registros")
 run_estimations(pila_est, "ibc_salud" ,     "cutoff40", "pila40_ibc_salud")
 run_estimations(pila_est, "sal_dias_cot" ,  "cutoff40", "pila40_sal_dias_cot")
-run_estimations(pila_est, "edad_PILA" ,     "cutoff40", "pila40_edad_pila")
+run_estimations(pila_est, "edad_PILA" ,     "cutoff40", "pila40_edad")
 run_estimations(pila_est, "asalariado", "cutoff40", "pila40_asalariado")
 
-# ----
 
-print(Sys.time())
-
-
-
-
-
-
-
-
-
-
-
-# ----
-
-
-
-# RIPS - estimates using the function
-run_estimations(rips_pbid, "n_hospitalizaciones", "df_hospitalizaciones")
-run_estimations(rips_pbid, "n_urgencias", "df_urgencias")
-
-
-# Ejemplo de uso:
-# Suponiendo que df_urgencias es tu conjunto de datos y deseas calcular las estimaciones para la variable n_hospitalizaciones
-run_estimations(df_urgencias, "n_hospitalizaciones", "cutoff30", "df_urgencias_estimations_cutoff30")
-
-# Puedes llamar a la función múltiples veces para diferentes variables y cutoffs
-run_estimations(df_urgencias, "n_urgencias", "cutoff40", "df_urgencias_estimations_cutoff40")
-run_estimations(df_urgencias, "n_hospitalizaciones", "cutoff21", "df_urgencias_estimations_cutoff21")
-
-# Para acceder a los resultados:
-# df_urgencias_estimations_cutoff30
-# df_urgencias_estimations_cutoff40
-# df_urgencias_estimations_cutoff21
-
-# PILA - estimates using the function
-
-
-
-# 5. Saving results ------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ----
-
-
-# 4. RIPS-SISBEN: estimations --------------------------------------------------
-
-# ----
-
-# 5. RIPS-SISBEN: estimations -------------------------------------------------
-
-# ----
-
-# 6. Saving results ------------------------------------------------------------
+# Crear una lista de todos los dataframes
+list_est_pila30 <- list(
+  pila30_genero, pila30_estrato1, pila30_estrato2, pila30_estrato3, pila30_estrato4, 
+  pila30_estrato5, pila30_estrato6,pila30_educacion, pila30_edad, pila30_registros, 
+  pila30_ibc_salud, pila30_sal_dias_cot, pila30_asalariado
+)
+list_est_pila40 <- list(
+  pila40_genero, pila40_estrato1, pila40_estrato2, pila40_estrato3, pila40_estrato4, 
+  pila40_estrato5, pila40_estrato6, pila40_educacion, pila40_edad, pila40_registros, 
+  pila40_ibc_salud, pila40_sal_dias_cot, pila40_asalariado
+)
+
+# Combinar todos los dataframes en uno solo
+est_pila30 <- bind_rows(list_est_pila30)
+est_pila40 <- bind_rows(list_est_pila40)
+
+# Guardar el dataframe combinado en formato .parquet
+write_parquet(est_pila30, "D:/Steban Pineda/OneDrive/Escritorio/estimaciones_pila30.parquet")
+write_parquet(est_pila40, "D:/Steban Pineda/OneDrive/Escritorio/estimaciones_pila40.parquet")
+
+
+estimaciones_list_objects <- c(
+  "pila30_genero", "pila30_estrato1", "pila30_estrato2", "pila30_estrato3", "pila30_estrato4", 
+  "pila30_estrato5", "pila30_estrato6", "pila30_educacion", "pila30_edad",
+  "pila40_genero", "pila40_estrato1", "pila40_estrato2", "pila40_estrato3", "pila40_estrato4", 
+  "pila40_estrato5", "pila40_estrato6", "pila40_educacion", "pila40_edad"
+)
+
+# Eliminar los objetos del entorno global
+rm(list = estimaciones_list_objects, envir = .GlobalEnv)
+
+# Confirmar que los objetos se eliminaron
+print(ls())
 
 # ----
 

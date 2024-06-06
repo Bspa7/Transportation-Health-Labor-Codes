@@ -398,9 +398,7 @@ pila_bogota_main <- pila_bogota_main %>%
   mutate(
     year = as.numeric(year),  
     yearmode = as.numeric(yearmode),
-    edad_PILA = year - yearmode,
-    edad_aux_sisben = year - 2010,
-    edad_PILA = ifelse(is.na(edad_PILA), edad + edad_aux_sisben, edad_PILA)
+    edad_PILA = year - yearmode
   ) %>% 
   categorize_age_pila()
 
@@ -439,9 +437,7 @@ pila_bogota_p30 <- pila_bogota_p30 %>%
   mutate(
     year = as.numeric(year),  
     yearmode = as.numeric(yearmode),
-    edad_PILA = year - yearmode,
-    edad_aux_sisben = year - 2010,
-    edad_PILA = ifelse(is.na(edad_PILA), edad + edad_aux_sisben, edad_PILA)
+    edad_PILA = year - yearmode
   ) %>% 
   categorize_age_pila()
 
@@ -481,9 +477,7 @@ pila_bogota_p40 <- pila_bogota_p40 %>%
   mutate(
     year = as.numeric(year),  
     yearmode = as.numeric(yearmode),
-    edad_PILA = year - yearmode,
-    edad_aux_sisben = year - 2010,
-    edad_PILA = ifelse(is.na(edad_PILA), edad + edad_aux_sisben, edad_PILA)
+    edad_PILA = year - yearmode
   ) %>% 
   categorize_age_pila()
 
@@ -524,12 +518,9 @@ pila_bogota_p2545 <- pila_bogota_p2545 %>%
   mutate(
     year = as.numeric(year),  
     yearmode = as.numeric(yearmode),
-    edad_PILA = year - yearmode,
-    edad_aux_sisben = year - 2010,
-    edad_PILA = ifelse(is.na(edad_PILA), edad + edad_aux_sisben, edad_PILA)
+    edad_PILA = year - yearmode
   ) %>% 
   categorize_age_pila()
-
 
 p2545_pila_by_vars <- pila_bogota_p2545 %>%
   group_by(monthly_date, sexomode, grupo_edad, tipo_cotizante) %>% 
