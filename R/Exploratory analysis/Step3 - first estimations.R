@@ -56,8 +56,8 @@ centrar_puntaje <- function(df) {
 # Define a function to create all set of estimations
 run_estimations <- function(data, var_name, cutoff_var, df_name) {
   # Definir ventana de tiempo
-  years <- 2011:2019
-  quarters <- 2:2
+  years <- 2012:2019
+  quarters <- 1:4
   
   # Dataframe vacío para guardar resultados
   results_df <- data.frame(
@@ -512,4 +512,4 @@ print(ls())
 # ----
 
 
-
+ 
