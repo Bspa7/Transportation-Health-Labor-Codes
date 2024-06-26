@@ -110,57 +110,47 @@ foreach x of newlist all main p30 p40 p2545 {
 use "${results}/rips_summarise_main", replace		
 
 * Total de registros en todo RIPS
-line total_registres month if inrange(year, 2013, 2017), lcol(midblue) ///
+line total_registres month if inrange(year, 2013, 2018), lcol(midblue) ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#10, format(%9.0fc) labsize(vsmall)) ///
 		xtitle("")  ytitle("Total registres") title("") ///
 		note("All different personabasicaid by month")
 graph export "${graphs_rips}/main_01_serie.png", replace	
 
 * Total de registros en los modulos
-twoway (line total_c month if inrange(year, 2013, 2017), lcol(edkblue)),  ///
+twoway (line total_c month if inrange(year, 2013, 2018), lcol(edkblue)),  ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///	
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("Consultations") ///
 		name(all_modules_total_c, replace)
 		
-twoway (line total_p month if inrange(year, 2013, 2017), lcol(ebblue)),  ///
+twoway (line total_p month if inrange(year, 2013, 2018), lcol(ebblue)),  ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///	
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("Procedures") ///
 		name(all_modules_total_p, replace)
 		
-twoway (line total_h month if inrange(year, 2013, 2017), lcol(emidblue)),  ///
+twoway (line total_h month if inrange(year, 2013, 2018), lcol(emidblue)),  ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///	
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("Hospitalizations") ///
 		name(all_modules_total_h, replace)
 		
-twoway (line total_u month if inrange(year, 2013, 2017), lcol(midblue)),  ///
+twoway (line total_u month if inrange(year, 2013, 2018), lcol(midblue)),  ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///	
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("Emergencies") ///
@@ -173,14 +163,12 @@ graph export "${graphs_rips}/main_modules.png", replace
 	
 *** CONSULTAS ------------------------------------------------------------------
 * preventivas por género
-twoway (line     c_preventivas month if inrange(year, 2013, 2017), lcol(edkblue)) ///
-       (line fem_c_preventivas month if inrange(year, 2013, 2017), lcol(ebblue)) ///					   
-       (line mal_c_preventivas month if inrange(year, 2013, 2017), lcol(emidblue)), ///  
+twoway (line     c_preventivas month if inrange(year, 2013, 2018), lcol(edkblue)) ///
+       (line fem_c_preventivas month if inrange(year, 2013, 2018), lcol(ebblue)) ///					   
+       (line mal_c_preventivas month if inrange(year, 2013, 2018), lcol(emidblue)), ///  
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -192,14 +180,12 @@ twoway (line     c_preventivas month if inrange(year, 2013, 2017), lcol(edkblue)
 graph export "${graphs_rips}/main_c_preventives.png", replace		
 	
 * prenatales por género
-twoway (line     c_prenatales month if inrange(year, 2013, 2017), lcol(edkblue)) ///
-       (line fem_c_prenatales month if inrange(year, 2013, 2017), lcol(ebblue)) ///				   
-       (line mal_c_prenatales month if inrange(year, 2013, 2017), lcol(emidblue)), ///	   
+twoway (line     c_prenatales month if inrange(year, 2013, 2018), lcol(edkblue)) ///
+       (line fem_c_prenatales month if inrange(year, 2013, 2018), lcol(ebblue)) ///				   
+       (line mal_c_prenatales month if inrange(year, 2013, 2018), lcol(emidblue)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -211,15 +197,13 @@ twoway (line     c_prenatales month if inrange(year, 2013, 2017), lcol(edkblue))
 graph export "${graphs_rips}/main_c_prenatales.png", replace	
 		
 * Cronicas	
-twoway (line c_cron_cancer         month if inrange(year, 2013, 2017), lcol(edkblue))  ///
-       (line c_cron_renal          month if inrange(year, 2013, 2017), lcol(ebblue))   ///			
-       (line c_cron_respiratoria   month if inrange(year, 2013, 2017), lcol(emidblue)) ///	   
-       (line c_cron_cardiovascular month if inrange(year, 2013, 2017), lcol(midblue)   yaxis(2)), ///	   
+twoway (line c_cron_cancer         month if inrange(year, 2013, 2018), lcol(edkblue))  ///
+       (line c_cron_renal          month if inrange(year, 2013, 2018), lcol(ebblue))   ///			
+       (line c_cron_respiratoria   month if inrange(year, 2013, 2018), lcol(emidblue)) ///	   
+       (line c_cron_cardiovascular month if inrange(year, 2013, 2018), lcol(midblue)   yaxis(2)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
 		ylabel(200(2000)20000, format(%9.0fc) labsize(vsmall) axis(2)) ///
 		legend(position(6)  col(4) order(1 2 3 4)) ///
@@ -234,14 +218,12 @@ graph export "${graphs_rips}/main_c_cronicas.png", replace
 	
 *** PROCEDIMIENTOS -------------------------------------------------------------	
 * preventivas por género
-twoway (line     p_preventivas month if inrange(year, 2013, 2017), lcol(edkblue)) ///
-       (line fem_p_preventivas month if inrange(year, 2013, 2017), lcol(ebblue)) ///					   
-       (line mal_p_preventivas month if inrange(year, 2013, 2017), lcol(emidblue)), ///  
+twoway (line     p_preventivas month if inrange(year, 2013, 2018), lcol(edkblue)) ///
+       (line fem_p_preventivas month if inrange(year, 2013, 2018), lcol(ebblue)) ///					   
+       (line mal_p_preventivas month if inrange(year, 2013, 2018), lcol(emidblue)), ///  
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -253,14 +235,12 @@ twoway (line     p_preventivas month if inrange(year, 2013, 2017), lcol(edkblue)
 graph export "${graphs_rips}/main_p_preventives.png", replace		
 	
 * prenatales por género
-twoway (line     p_prenatales month if inrange(year, 2013, 2017), lcol(edkblue)) ///
-       (line fem_p_prenatales month if inrange(year, 2013, 2017), lcol(ebblue)) ///				   
-       (line mal_p_prenatales month if inrange(year, 2013, 2017), lcol(emidblue)), ///	   
+twoway (line     p_prenatales month if inrange(year, 2013, 2018), lcol(edkblue)) ///
+       (line fem_p_prenatales month if inrange(year, 2013, 2018), lcol(ebblue)) ///				   
+       (line mal_p_prenatales month if inrange(year, 2013, 2018), lcol(emidblue)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -272,15 +252,13 @@ twoway (line     p_prenatales month if inrange(year, 2013, 2017), lcol(edkblue))
 graph export "${graphs_rips}/main_p_prenatales.png", replace	
 		
 * Cronicas	
-twoway (line p_cron_cancer         month if inrange(year, 2013, 2017), lcol(edkblue))  ///
-       (line p_cron_renal          month if inrange(year, 2013, 2017), lcol(ebblue))   ///			
-       (line p_cron_respiratoria   month if inrange(year, 2013, 2017), lcol(emidblue)) ///	   
-       (line p_cron_cardiovascular month if inrange(year, 2013, 2017), lcol(midblue)   yaxis(2)), ///	   
+twoway (line p_cron_cancer         month if inrange(year, 2013, 2018), lcol(edkblue))  ///
+       (line p_cron_renal          month if inrange(year, 2013, 2018), lcol(ebblue))   ///			
+       (line p_cron_respiratoria   month if inrange(year, 2013, 2018), lcol(emidblue)) ///	   
+       (line p_cron_cardiovascular month if inrange(year, 2013, 2018), lcol(midblue)   yaxis(2)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
 		ylabel(200(2000)15000, format(%9.0fc) labsize(vsmall) axis(2)) ///
 		legend(position(6)  col(4) order(1 2 3 4)) ///
@@ -300,10 +278,8 @@ foreach data of newlist p30 p40 p2545 {
 use "${results}/rips_summarise_`data'", replace		
 
 * Total de registros en todo RIPS
-line total_registres month if inrange(year, 2013, 2017), lcol(midblue) ///
+line total_registres month if inrange(year, 2013, 2018), lcol(midblue) ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#12, labsize(vsmall) grid angle(45)) ///
         ylabel(#10, format(%9.0fc) labsize(vsmall)) ///
@@ -312,45 +288,37 @@ line total_registres month if inrange(year, 2013, 2017), lcol(midblue) ///
 graph export "${graphs_rips}/`data'_01_serie.png", replace	
 
 * Total de registros en los modulos
-twoway (line total_c month if inrange(year, 2013, 2017), lcol(edkblue)),  ///
+twoway (line total_c month if inrange(year, 2013, 2018), lcol(edkblue)),  ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///	
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("Consultations") ///
 		name(`data'_modules_total_c, replace)
 		
-twoway (line total_p month if inrange(year, 2013, 2017), lcol(ebblue)),  ///
+twoway (line total_p month if inrange(year, 2013, 2018), lcol(ebblue)),  ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///	
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("Procedures") ///
 		name(`data'_modules_total_p, replace)
 		
-twoway (line total_h month if inrange(year, 2013, 2017), lcol(emidblue)),  ///
+twoway (line total_h month if inrange(year, 2013, 2018), lcol(emidblue)),  ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///	
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("Hospitalizations") ///
 		name(`data'_modules_total_h, replace)
 		
-twoway (line total_u month if inrange(year, 2013, 2017), lcol(midblue)),  ///
+twoway (line total_u month if inrange(year, 2013, 2018), lcol(midblue)),  ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///	
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("Emergencies") ///
@@ -363,14 +331,12 @@ graph export "${graphs_rips}/`data'_modules.png", replace
 	
 *** CONSULTAS ------------------------------------------------------------------
 * preventivas por género
-twoway (line     c_preventivas month if inrange(year, 2013, 2017), lcol(edkblue)) ///
-       (line fem_c_preventivas month if inrange(year, 2013, 2017), lcol(ebblue)) ///					   
-       (line mal_c_preventivas month if inrange(year, 2013, 2017), lcol(emidblue)), ///  
+twoway (line     c_preventivas month if inrange(year, 2013, 2018), lcol(edkblue)) ///
+       (line fem_c_preventivas month if inrange(year, 2013, 2018), lcol(ebblue)) ///					   
+       (line mal_c_preventivas month if inrange(year, 2013, 2018), lcol(emidblue)), ///  
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -382,14 +348,12 @@ twoway (line     c_preventivas month if inrange(year, 2013, 2017), lcol(edkblue)
 graph export "${graphs_rips}/`data'_c_preventives.png", replace		
 	
 * prenatales por género
-twoway (line     c_prenatales month if inrange(year, 2013, 2017), lcol(edkblue)) ///
-       (line fem_c_prenatales month if inrange(year, 2013, 2017), lcol(ebblue)) ///				   
-       (line mal_c_prenatales month if inrange(year, 2013, 2017), lcol(emidblue)), ///	   
+twoway (line     c_prenatales month if inrange(year, 2013, 2018), lcol(edkblue)) ///
+       (line fem_c_prenatales month if inrange(year, 2013, 2018), lcol(ebblue)) ///				   
+       (line mal_c_prenatales month if inrange(year, 2013, 2018), lcol(emidblue)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -401,15 +365,13 @@ twoway (line     c_prenatales month if inrange(year, 2013, 2017), lcol(edkblue))
 graph export "${graphs_rips}/`data'_c_prenatales.png", replace	
 		
 * Cronicas	
-twoway (line c_cron_cancer         month if inrange(year, 2013, 2017), lcol(edkblue))  ///
-       (line c_cron_renal          month if inrange(year, 2013, 2017), lcol(ebblue))   ///			
-       (line c_cron_respiratoria   month if inrange(year, 2013, 2017), lcol(emidblue)) ///	   
-       (line c_cron_cardiovascular month if inrange(year, 2013, 2017), lcol(midblue)   yaxis(2)), ///	   
+twoway (line c_cron_cancer         month if inrange(year, 2013, 2018), lcol(edkblue))  ///
+       (line c_cron_renal          month if inrange(year, 2013, 2018), lcol(ebblue))   ///			
+       (line c_cron_respiratoria   month if inrange(year, 2013, 2018), lcol(emidblue)) ///	   
+       (line c_cron_cardiovascular month if inrange(year, 2013, 2018), lcol(midblue)   yaxis(2)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
 		ylabel(#6, format(%9.0fc) labsize(vsmall) axis(2)) ///
 		legend(position(6)  col(4) order(1 2 3 4)) ///
@@ -424,14 +386,12 @@ graph export "${graphs_rips}/`data'_c_cronicas.png", replace
 	
 *** PROCEDIMIENTOS -------------------------------------------------------------	
 * preventivas por género
-twoway (line     p_preventivas month if inrange(year, 2013, 2017), lcol(edkblue)) ///
-       (line fem_p_preventivas month if inrange(year, 2013, 2017), lcol(ebblue)) ///					   
-       (line mal_p_preventivas month if inrange(year, 2013, 2017), lcol(emidblue)), ///  
+twoway (line     p_preventivas month if inrange(year, 2013, 2018), lcol(edkblue)) ///
+       (line fem_p_preventivas month if inrange(year, 2013, 2018), lcol(ebblue)) ///					   
+       (line mal_p_preventivas month if inrange(year, 2013, 2018), lcol(emidblue)), ///  
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -443,14 +403,12 @@ twoway (line     p_preventivas month if inrange(year, 2013, 2017), lcol(edkblue)
 graph export "${graphs_rips}/`data'_p_preventives.png", replace		
 	
 * prenatales por género
-twoway (line     p_prenatales month if inrange(year, 2013, 2017), lcol(edkblue)) ///
-       (line fem_p_prenatales month if inrange(year, 2013, 2017), lcol(ebblue)) ///				   
-       (line mal_p_prenatales month if inrange(year, 2013, 2017), lcol(emidblue)), ///	   
+twoway (line     p_prenatales month if inrange(year, 2013, 2018), lcol(edkblue)) ///
+       (line fem_p_prenatales month if inrange(year, 2013, 2018), lcol(ebblue)) ///				   
+       (line mal_p_prenatales month if inrange(year, 2013, 2018), lcol(emidblue)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -462,15 +420,13 @@ twoway (line     p_prenatales month if inrange(year, 2013, 2017), lcol(edkblue))
 graph export "${graphs_rips}/`data'_p_prenatales.png", replace	
 		
 * Cronicas	
-twoway (line p_cron_cancer         month if inrange(year, 2013, 2017), lcol(edkblue))  ///
-       (line p_cron_renal          month if inrange(year, 2013, 2017), lcol(ebblue))   ///			
-       (line p_cron_respiratoria   month if inrange(year, 2013, 2017), lcol(emidblue)) ///	   
-       (line p_cron_cardiovascular month if inrange(year, 2013, 2017), lcol(midblue)   yaxis(2)), ///	   
+twoway (line p_cron_cancer         month if inrange(year, 2013, 2018), lcol(edkblue))  ///
+       (line p_cron_renal          month if inrange(year, 2013, 2018), lcol(ebblue))   ///			
+       (line p_cron_respiratoria   month if inrange(year, 2013, 2018), lcol(emidblue)) ///	   
+       (line p_cron_cardiovascular month if inrange(year, 2013, 2018), lcol(midblue)   yaxis(2)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, format(%9.0fc) labsize(vsmall)) ///
 		ylabel(#6, format(%9.0fc) labsize(vsmall) axis(2)) ///
 		legend(position(6)  col(4) order(1 2 3 4)) ///
@@ -575,25 +531,21 @@ import excel "${root}/Results_run_banrep/20240604-try2_descriptives_pila.xlsx", 
 	
 use "${results}/pila_summarise_all", replace			
 	
-line total_persona month if inrange(year, 2013, 2017), lcol(midblue) ///
+line total_persona month if inrange(year, 2013, 2018), lcol(midblue) ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#10, labsize(vsmall) format(%9.0fc)) ///
 		xtitle("")  ytitle("") title("") ///
 		note("All different personabasicaid by month")	///
 		name(all_registers, replace)
 graph export "${graphs_pila}/all_01_serie.png", replace		
 		
-twoway (line fem_registros month if inrange(year, 2013, 2017), lcol(midblue)) ///					   
-       (line mal_registros month if inrange(year, 2013, 2017), lcol(emidblue)), ///  
+twoway (line fem_registros month if inrange(year, 2013, 2018), lcol(midblue)) ///					   
+       (line mal_registros month if inrange(year, 2013, 2018), lcol(emidblue)), ///  
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, labsize(vsmall) format(%9.0fc)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -604,14 +556,12 @@ twoway (line fem_registros month if inrange(year, 2013, 2017), lcol(midblue)) //
 graph export "${graphs_pila}/all_gender.png", replace	
 	
 	
-twoway (line tipo_cotizante_t1 month if inrange(year, 2013, 2017), lcol(red) yaxis(2)) ///
-       (line tipo_cotizante_t2 month if inrange(year, 2013, 2017), lcol(ebblue)) ///				   
-       (line tipo_cotizante_t3 month if inrange(year, 2013, 2017), lcol(emidblue)), ///	   
+twoway (line tipo_cotizante_t1 month if inrange(year, 2013, 2018), lcol(red) yaxis(2)) ///
+       (line tipo_cotizante_t2 month if inrange(year, 2013, 2018), lcol(ebblue)) ///				   
+       (line tipo_cotizante_t3 month if inrange(year, 2013, 2018), lcol(emidblue)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(30000(5000)75000, labsize(vsmall) format(%9.0fc)) ///
 		ylabel(200000(20000)400000, labsize(vsmall) format(%9.0fc) axis(2)) ///		
         legend(position(6)  col(4)) ///		
@@ -623,14 +573,12 @@ twoway (line tipo_cotizante_t1 month if inrange(year, 2013, 2017), lcol(red) yax
 		name(all_cotizantes, replace)	
 graph export "${graphs_pila}/all_employee.png", replace		
 
-twoway (line grupo_edad_g2 month if inrange(year, 2013, 2017), lcol(red) yaxis(2)) ///
-	   (line grupo_edad_g1 month if inrange(year, 2013, 2017), lcol(ebblue)) ///				   
-       (line grupo_edad_g3 month if inrange(year, 2013, 2017), lcol(emidblue)), ///	   
+twoway (line grupo_edad_g2 month if inrange(year, 2013, 2018), lcol(red) yaxis(2)) ///
+	   (line grupo_edad_g1 month if inrange(year, 2013, 2018), lcol(ebblue)) ///				   
+       (line grupo_edad_g3 month if inrange(year, 2013, 2018), lcol(emidblue)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(10000(10000)100000, labsize(vsmall) format(%9.0fc)) ///
 		ylabel(300000(10000)400000, labsize(vsmall) format(%9.0fc) axis(2)) ///		
         legend(position(6)  col(4)) ///
@@ -647,25 +595,21 @@ graph export "${graphs_pila}/all_ages.png", replace
 	
 use "${results}/pila_summarise_main", replace			
 	
-line total_persona month if inrange(year, 2013, 2017), lcol(midblue) ///
+line total_persona month if inrange(year, 2013, 2018), lcol(midblue) ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#10, labsize(vsmall) format(%9.0fc)) ///
 		xtitle("")  ytitle("") title("") ///
 		note("All different personabasicaid by month")	///
 		name(main_registers, replace)
 graph export "${graphs_pila}/main_01_serie.png", replace		
 		
-twoway (line fem_registros month if inrange(year, 2013, 2017), lcol(midblue)) ///					   
-       (line mal_registros month if inrange(year, 2013, 2017), lcol(emidblue)), ///  
+twoway (line fem_registros month if inrange(year, 2013, 2018), lcol(midblue)) ///					   
+       (line mal_registros month if inrange(year, 2013, 2018), lcol(emidblue)), ///  
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, labsize(vsmall) format(%9.0fc)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -676,14 +620,12 @@ twoway (line fem_registros month if inrange(year, 2013, 2017), lcol(midblue)) //
 graph export "${graphs_pila}/main_gender.png", replace	
 	
 	
-twoway (line tipo_cotizante_t1 month if inrange(year, 2013, 2017), lcol(red) yaxis(2)) ///
-       (line tipo_cotizante_t2 month if inrange(year, 2013, 2017), lcol(ebblue)) ///				   
-       (line tipo_cotizante_t3 month if inrange(year, 2013, 2017), lcol(emidblue)), ///	   
+twoway (line tipo_cotizante_t1 month if inrange(year, 2013, 2018), lcol(red) yaxis(2)) ///
+       (line tipo_cotizante_t2 month if inrange(year, 2013, 2018), lcol(ebblue)) ///				   
+       (line tipo_cotizante_t3 month if inrange(year, 2013, 2018), lcol(emidblue)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(30000(5000)75000, labsize(vsmall) format(%9.0fc)) ///
 		ylabel(200000(20000)400000, labsize(vsmall) format(%9.0fc) axis(2)) ///		
         legend(position(6)  col(4)) ///		
@@ -695,14 +637,12 @@ twoway (line tipo_cotizante_t1 month if inrange(year, 2013, 2017), lcol(red) yax
 		name(main_cotizantes, replace)	
 graph export "${graphs_pila}/main_employee.png", replace		
 
-twoway (line grupo_edad_g2 month if inrange(year, 2013, 2017), lcol(red) yaxis(2)) ///
-	   (line grupo_edad_g1 month if inrange(year, 2013, 2017), lcol(ebblue)) ///				   
-       (line grupo_edad_g3 month if inrange(year, 2013, 2017), lcol(emidblue)), ///	   
+twoway (line grupo_edad_g2 month if inrange(year, 2013, 2018), lcol(red) yaxis(2)) ///
+	   (line grupo_edad_g1 month if inrange(year, 2013, 2018), lcol(ebblue)) ///				   
+       (line grupo_edad_g3 month if inrange(year, 2013, 2018), lcol(emidblue)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(10000(10000)100000, labsize(vsmall) format(%9.0fc)) ///
 		ylabel(300000(10000)400000, labsize(vsmall) format(%9.0fc) axis(2)) ///		
         legend(position(6)  col(4)) ///
@@ -721,25 +661,21 @@ foreach data of newlist p30 p40 p2545 {
 
 use "${results}/pila_summarise_`data'", replace			
 	
-line total_persona month if inrange(year, 2013, 2017), lcol(midblue) ///
+line total_persona month if inrange(year, 2013, 2018), lcol(midblue) ///
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#10, labsize(vsmall) format(%9.0fc)) ///
 		xtitle("")  ytitle("") title("") ///
 		note("All different personabasicaid by month")	///
 		name(`data'_registers, replace)
 graph export "${graphs_pila}/`data'_01_serie.png", replace		
 		
-twoway (line fem_registros month if inrange(year, 2013, 2017), lcol(midblue)) ///					   
-       (line mal_registros month if inrange(year, 2013, 2017), lcol(emidblue)), ///  
+twoway (line fem_registros month if inrange(year, 2013, 2018), lcol(midblue)) ///					   
+       (line mal_registros month if inrange(year, 2013, 2018), lcol(emidblue)), ///  
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#6, labsize(vsmall) format(%9.0fc)) ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") title("") ///
@@ -750,14 +686,12 @@ twoway (line fem_registros month if inrange(year, 2013, 2017), lcol(midblue)) //
 graph export "${graphs_pila}/`data'_gender.png", replace	
 	
 	
-twoway (line tipo_cotizante_t1 month if inrange(year, 2013, 2017), lcol(red) yaxis(2)) ///
-       (line tipo_cotizante_t2 month if inrange(year, 2013, 2017), lcol(ebblue)) ///				   
-       (line tipo_cotizante_t3 month if inrange(year, 2013, 2017), lcol(emidblue)), ///	   
+twoway (line tipo_cotizante_t1 month if inrange(year, 2013, 2018), lcol(red) yaxis(2)) ///
+       (line tipo_cotizante_t2 month if inrange(year, 2013, 2018), lcol(ebblue)) ///				   
+       (line tipo_cotizante_t3 month if inrange(year, 2013, 2018), lcol(emidblue)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#15, labsize(vsmall) format(%9.0fc)) ///
 		ylabel(#6, labsize(vsmall) format(%9.0fc) axis(2)) ///		
         legend(position(6)  col(4)) ///		
@@ -769,14 +703,12 @@ twoway (line tipo_cotizante_t1 month if inrange(year, 2013, 2017), lcol(red) yax
 		name(`data'_cotizantes, replace)	
 graph export "${graphs_pila}/`data'_employee.png", replace		
 
-twoway (line grupo_edad_g2 month if inrange(year, 2013, 2017), lcol(red) yaxis(2)) ///
-	   (line grupo_edad_g1 month if inrange(year, 2013, 2017), lcol(ebblue)) ///				   
-       (line grupo_edad_g3 month if inrange(year, 2013, 2017), lcol(emidblue)), ///	   
+twoway (line grupo_edad_g2 month if inrange(year, 2013, 2018), lcol(red) yaxis(2)) ///
+	   (line grupo_edad_g1 month if inrange(year, 2013, 2018), lcol(ebblue)) ///				   
+       (line grupo_edad_g3 month if inrange(year, 2013, 2018), lcol(emidblue)), ///	   
 		xline(648, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
-		xline(657, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///		
-		xline(673, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
 		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
-        xlabel(#20, labsize(vsmall) grid angle(45)) ///
+        xlabel(#25, labsize(vsmall) grid angle(45)) ///
         ylabel(#15, labsize(vsmall) format(%9.0fc)) ///
 		ylabel(#6, labsize(vsmall) format(%9.0fc) axis(2)) ///		
         legend(position(6)  col(4)) ///
