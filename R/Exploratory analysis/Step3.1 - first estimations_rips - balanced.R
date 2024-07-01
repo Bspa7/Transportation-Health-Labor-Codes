@@ -7,8 +7,8 @@ for (paquete in paquetes) {
 }
 
 
-#base_dir <- "//wmedesrv/GAMMA/Christian Posso/_banrep_research/proyectos/project_transport_health"
-base_dir  <- "D:/Steban Pineda/Documents/DIME/Transportation and health"
+base_dir <- "//wmedesrv/GAMMA/Christian Posso/_banrep_research/proyectos/project_transport_health"
+#base_dir  <- "D:/Steban Pineda/Documents/DIME/Transportation and health"
 project_folder <- base_dir
 data_dir       <- file.path(base_dir, "data")
 output_folder  <- file.path(base_dir, "outputs")
@@ -124,6 +124,129 @@ run_estimations <- function(data, var_name, cutoff_var, df_name) {
 }
 
 
+# Definimos la función para generar los gráficos
+plot_rd <- function(data, outcome_var, cutoff_var, year, quarter) {
+  # Filtramos los datos por año y trimestre
+  sample <- data %>%
+    filter(year(quarterly_date) == year & quarter(quarterly_date) == quarter)
+  
+  # Verificar si hay suficientes datos para realizar la estimación
+  if (nrow(sample) > 20) {  # Ajusta el umbral según sea necesario
+    # Imprimir información actual
+    cat("Variable:", outcome_var, "Cutoff:", cutoff_var, "Trimestre:", paste0(year, "q", quarter), "Hora:", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n")
+    
+    # Realizar la estimación
+    rd_result <- tryCatch(
+      {
+        rdrobust(sample[[outcome_var]], sample[[cutoff_var]], all=TRUE)
+      },
+      error = function(e) {
+        message(paste("Error en el año", year, "trimestre", quarter, ":", e$message))
+        return(NULL)
+      }
+    )
+    
+    # Verificar si la estimación fue exitosa
+    if (!is.null(rd_result)) {
+      coef_robust <- rd_result$coef["Robust", ]
+      pv_robust <- rd_result$pv["Robust", ]
+      
+      # Generar el gráfico rdplot
+      rd_plot <- rdplot(y = sample[[outcome_var]], x = sample[[cutoff_var]])
+      plot <- rd_plot$rdplot
+      
+      # Personalizar el gráfico
+      plot <- plot + theme_classic() +
+        labs(
+          title = "",
+          subtitle = "",
+          caption = paste0("period ", year, "q", quarter, "\n", outcome_var),
+          x = paste0("Distance to SISBEN cutoff (", gsub("[^0-9]", "", cutoff_var), "pts)\n",
+                     "Running variable adjusted to elegibles individuals at the right side"),
+          y = "Mean of the outcome"
+        ) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
+        theme(
+          legend.position = "none",
+          plot.caption = element_text(hjust = 0),
+          axis.title.x = element_text(size = 12, margin = margin(t = 10)),
+          axis.title.y = element_text(size = 12, margin = margin(r = 10)),
+          axis.title.x.bottom = element_text(size = 10, margin = margin(t = 5))
+        ) +
+        annotate("text", x = Inf, y = Inf, label = paste0("coef=", round(coef_robust, 4), "\np_value=", round(pv_robust, 4)),
+                 hjust = 1.1, vjust = 2, size = 3)
+      
+      # Retornar el gráfico
+      return(plot)
+    } else {
+      return(NULL)  # Si la estimación falló, retornar NULL
+    }
+  } else {
+    message(paste("No hay suficientes datos en el año", year, "trimestre", quarter))
+    return(NULL)  # Si no hay suficientes datos, retornar NULL
+  }
+}
+
+
+# Función para generar los gráficos en el balance sin filtrar año
+plot_rd_total <- function(data, outcome_var, cutoff_var) {
+  # Verificar si hay suficientes datos para realizar la estimación
+  if (nrow(data) > 20) {  # Ajusta el umbral según sea necesario
+    # Imprimir información actual
+    cat("Variable:", outcome_var, "Running variable:", cutoff_var, "Hora:", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n")
+    
+    # Realizar la estimación
+    rd_result <- tryCatch(
+      {
+        rdrobust(data[[outcome_var]], data[[cutoff_var]], all=TRUE)
+      },
+      error = function(e) {
+        message(paste("Error en la variable", outcome_var, "con cutoff", cutoff_var, ":", e$message))
+        return(NULL)
+      }
+    )
+    
+    # Verificar si la estimación fue exitosa
+    if (!is.null(rd_result)) {
+      coef_robust <- rd_result$coef["Robust", ]
+      pv_robust <- rd_result$pv["Robust", ]
+      
+      # Generar el gráfico rdplot
+      rd_plot <- rdplot(y = data[[outcome_var]], x = data[[cutoff_var]])
+      plot <- rd_plot$rdplot
+      
+      # Personalizar el gráfico
+      plot <- plot + theme_classic() +
+        labs(
+          title = "",
+          subtitle = "",
+          caption = paste0("Outcome variable: ", outcome_var),
+          x = paste0("Distance to SISBEN cutoff (", gsub("[^0-9]", "", cutoff_var), "pts)\n",
+                     "Running variable adjusted to elegibles individuals at the right side"),
+          y = "Mean of the outcome"
+        ) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
+        theme(
+          legend.position = "none",
+          plot.caption = element_text(hjust = 0),
+          axis.title.x = element_text(size = 12, margin = margin(t = 10)),
+          axis.title.y = element_text(size = 12, margin = margin(r = 10)),
+          axis.title.x.bottom = element_text(size = 10, margin = margin(t = 5))
+        ) +
+        annotate("text", x = Inf, y = Inf, label = paste0("coef=", round(coef_robust, 4), "\np_value=", round(pv_robust, 4)),
+                 hjust = 1.1, vjust = 2, size = 3)
+      
+      # Retornar el gráfico
+      return(plot)
+    } else {
+      return(NULL)  # Si la estimación falló, retornar NULL
+    }
+  } else {
+    message(paste("No hay suficientes datos para la variable", outcome_var))
+    return(NULL)  # Si no hay suficientes datos, retornar NULL
+  }
+}
+
 
 
 # ----
@@ -141,8 +264,7 @@ main_rips         <- open_dataset(RIPS_history_file) %>%
     open_dataset(sprintf("%s/%s", project_folder, "data/master.parquet")),
     by = 'personabasicaid'
   ) %>%
-    rename(COD_MPIO = COD_MPIO.x, COD_DPTO = COD_DPTO.x, puntaje = puntaje.x, sexo = sexo.x, estrato = estrato.x, nivel=nivel.x, grado=grado.x) %>% 
-    filter(!is.na(puntaje))
+  filter(!is.na(puntaje))
 
 #%>% 
 #  filter(!is.na(puntaje))
@@ -155,7 +277,8 @@ main_rips         <- open_dataset(RIPS_history_file) %>%
 
 # 3. Modified databases to estimations -----------------------------------------
 
-# 3.1. RIPS: panel at personabasicaid-quarter level outcomes -------------------
+# 3.1. RIPS: panel at personabasicaid-quarter level outcomes
+
 rips_pbid <- main_rips %>%
   filter(COD_DPTO == 11 & COD_MPIO == 1) %>%
   categorize_age() %>%
@@ -270,21 +393,12 @@ rips_est <- rips_pbid %>%
   centrar_puntaje() %>% 
   collect
 
-rips_est <- rips_est %>% 
-  sample_frac(0.005)
+#rips_est <- rips_est %>% 
+#  sample_frac(0.005)
 
 rm(rips_pbid)
 gc()
 
-# -----------
-
-# PROVISIONAL SAMPLE ------------------------------------------------------------
-
-#write_parquet(rips_est, file.path(data_dir, "panel_prov_rips.parquet"))
-
-rips_est <- open_dataset(sprintf('%s/%s', data_dir, "panel_prov_rips.parquet")) %>%  collect
-
-# -----------
 
 # Skeleton with all individuals observed in all periods
 aux_time <- seq(as.Date("2012-01-01"), as.Date("2019-12-01"), by = "quarter")
@@ -329,14 +443,6 @@ rips_est_balanced <- rips_est_balanced %>%
 rips_est_balanced <- rips_est_balanced %>%
   mutate(edad_sisben = floor(interval(fechanto, quarterly_date) / years(1)))
 
-# Reordenar las columnas
-rips_est_balanced <- rips_est_balanced %>%
-  select(personabasicaid, quarterly_date, fechanto, edad_sisben, everything())
-
-
-
-
-# 5. Estimations ---------------------------------------------------------------
 
 # Changing the direction of the running variable | Interpretation
 rips_est_balanced <-  rips_est_balanced %>% 
@@ -345,8 +451,13 @@ rips_est_balanced <-  rips_est_balanced %>%
          cutoff30 = cutoff30*-1,
          cutoff40 = cutoff40*-1)
 
+
+# 5.1 Estimations on tables for each quarter -----------------------------------
+
+# Verificamos que no haya NA's
 rips_est_balanced <- rips_est_balanced %>%
-  select(personabasicaid, cutoff30, cutoff30_origi, cutoff40, cutoff40_origi, quarterly_date, fechanto, edad_sisben, everything())
+  mutate(across(starts_with("n_"), ~ replace_na(., 0))) %>%
+  mutate(across(starts_with("d_"), ~ replace_na(., 0)))
 
 
 # Using the cutoff=30
@@ -465,17 +576,73 @@ estimaciones_list_objects <- c(
 # Drop some elements in the environment
 rm(list = estimaciones_list_objects, envir = .GlobalEnv)
 
-  
-rdplot(y=rips_est_balanced$estrato_1, x=rips_est_balanced$cutoff30)
+
+
+# 5.2 Estimations on figures in some outcomes ----------------------------------
+
+# Lista de variables a estimar
+variables <- c("n_consultas",         "d_consultas", 
+               "n_hospitalizaciones", "d_hospitalizaciones",
+               "n_procedimientos",    "d_procedimientos",
+               "n_urgencias",         "d_urgencias",
+               "n_visitas",           "d_visitas",
+               "genero","edad_sisben",
+               "estrato_1", "estrato_2", "estrato_3", 
+               "activi_sin", "activi_tra", "activi_bus", "activi_est", "activi_hog", 
+               "estcivil_unlibr", "estcivil_casado", "estcivil_solter", 
+               "anios_educacion", "ingresos")
+
+# Lista de periodos (año y trimestre)
+periodos <- list(
+  c(2012, 2),
+  c(2014, 2),
+  c(2016, 2),
+  c(2017, 2),
+  c(2018, 2)
+)
+
+# Lista de running variables
+cutoff_vars <- c("cutoff30", "cutoff40")
+
+# Crear una lista para almacenar los nombres de los archivos de figuras
+figure_files <- c()
+
+# Iteramos sobre cada variable, periodo y running variable
+for (variable in variables) {
+  for (periodo in periodos) {
+    for (cutoff_var in cutoff_vars) {
+      year <- periodo[1]
+      quarter <- periodo[2]
+      
+      # Generamos el gráfico
+      plot <- plot_rd(rips_est_balanced, variable, cutoff_var, year, quarter)
+      
+      if (!is.null(plot)) {
+        # Generar el nombre del archivo
+        filename <- file.path(output_folder, paste0("figures/20240627-rips", gsub("[^0-9]", "", cutoff_var), "_", variable, "_", year, "q", quarter, ".png"))
+        
+        # Guardar el gráfico
+        ggsave(filename, plot = plot, width = 8, height = 6, dpi = 300)
+        
+        # Agregar el nombre del archivo a la lista
+        figure_files <- c(figure_files, filename)
+      }
+    }
+  }
+}
+
+# Crear archivo comprimido con las figuras
+zipfile <- file.path(output_folder, "figures/20240627-estimaciones_rips.zip")
+
+# Cambiar temporalmente el directorio de trabajo
+setwd(file.path(output_folder, "figures"))
+zip(zipfile, files = basename(figure_files))
+
+# Eliminar los archivos originales de figuras
+file.remove(figure_files)
 
 
 
 
-
-
-
-
-
-
-
+rm(list=ls())
 
