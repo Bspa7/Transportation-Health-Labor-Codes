@@ -30,20 +30,20 @@ write.xlsx(rips_est40, file = file.path(output_folder, "20240612-rips_est40.xlsx
 write.xlsx(pila_est40, file = file.path(output_folder, "20240612-pila_est40.xlsx"))
 
 
-# Results from Jun 20, 2024 (Estimations using balanced panel)
+# Results from Jun 27, 2024 (Estimations using balanced panel)
 
-rips_est30 <- sprintf('%s/%s', output_folder, 'parquet/20240620-est_rips30.parquet')
-pila_est30 <- sprintf('%s/%s', output_folder, 'parquet/20240620-est_pila30.parquet')
-rips_est40 <- sprintf('%s/%s', output_folder, 'parquet/20240620-est_rips40.parquet')
-pila_est40 <- sprintf('%s/%s', output_folder, 'parquet/20240620-est_pila40.parquet')
+rips_est30 <- sprintf('%s/%s', output_folder, 'parquet/20240627-est_rips30.parquet')
+pila_est30 <- sprintf('%s/%s', output_folder, 'parquet/20240627-est_pila30.parquet')
+rips_est40 <- sprintf('%s/%s', output_folder, 'parquet/20240627-est_rips40.parquet')
+pila_est40 <- sprintf('%s/%s', output_folder, 'parquet/20240627-est_pila40.parquet')
 
 rips_est30 <- open_dataset(rips_est30) %>%  collect
 pila_est30 <- open_dataset(pila_est30) %>%  collect
 rips_est40 <- open_dataset(rips_est40) %>%  collect
 pila_est40 <- open_dataset(pila_est40) %>%  collect
 
-write.xlsx(rips_est30, file = file.path(output_folder, "20240620-rips_est30.xlsx"))
-write.xlsx(pila_est30, file = file.path(output_folder, "20240620-pila_est30.xlsx"))
-write.xlsx(rips_est40, file = file.path(output_folder, "20240620-rips_est40.xlsx"))
-write.xlsx(pila_est40, file = file.path(output_folder, "20240620-pila_est40.xlsx"))
+write.xlsx(rips_est30, file = file.path(output_folder, "20240627-rips_est30.xlsx"))
+write.xlsx(pila_est30, file = file.path(output_folder, "20240627-pila_est30.xlsx"))
+write.xlsx(rips_est40, file = file.path(output_folder, "20240627-rips_est40.xlsx"))
+write.xlsx(pila_est40, file = file.path(output_folder, "20240627-pila_est40.xlsx"))
 

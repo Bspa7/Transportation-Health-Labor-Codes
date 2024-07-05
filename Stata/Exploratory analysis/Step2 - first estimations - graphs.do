@@ -4,8 +4,8 @@ global results     "${root}/Results_run_banrep"
 global graphs_rips "${root}/outputs/figures/Descriptives_RIPS"
 global graphs_pila "${root}/outputs/figures/Descriptives_PILA"
 
-* Results from Jun 06, 2024 ****************************************************
-
+* Results from Jun 06, 2024 (Unbalanced data) **********************************
+/*
 import excel "${root}\outputs\20240612-pila_est30.xlsx", firstrow clear
 
 gen qtr = quarterly(period,"YQ")
@@ -86,7 +86,7 @@ twoway (scatter coef_robust qtr if variable=="`control'", ///
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") ///
 		name(rips30_`control', replace)		
-graph export "${graphs_rips}/rips30_`control'.png", replace				
+*graph export "${graphs_rips}/rips30_`control'.png", replace				
 }
 
 
@@ -116,64 +116,15 @@ twoway (scatter coef_robust qtr if variable=="`control'", ///
 		name(rips40_`control', replace)		
 graph export "${graphs_rips}/rips40_`control'.png", replace				
 }
+*/
+* Results from Jun 27, 2024 (Estimations using balanced panel) *****************
+/* 1. This estimations has the running variable adjusted to capture the impact on
+      treated (individuals under the cutoff.
+   2. Graphics with a renewed aesthetic.
+  */ 
 
-* Results from Jun 20, 2024 (Estimations using balanced panel) *****************
-
-import excel "${root}\outputs\20240620-pila_est30.xlsx", firstrow clear
-
-gen qtr = quarterly(period,"YQ")
-format qtr %tq
-
-foreach control of newlist asalariado ibc_salud n_registros sal_dias_cot {
-
-twoway (scatter coef_robust qtr if variable=="`control'", ///
-                msize(vsmall) msymbol(O) mcolor(midblue) lwidth(vthin)) ///
-       (rcap ci_lower_robust ci_upper_robust qtr if variable=="`control'", ///
-	            lcolor(emidblue) lwidth(thick) lwidth(vthin)), ///
-       xtitle(Trimestre) ytitle(Coeficiente) ///
-       title("") ///
-       legend(order(1 "Point Estimate" 2 "95% Confidence Interval")) ///
-       graphregion(color(white)) bgcolor(white) ///
-       yline(0, lcolor(gray) lpattern(solid) ) ///
-		xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
-		xline(231, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
-        xlabel(#32, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
-        ylabel(#10, labsize(vsmall)  grid glpattern(tight_dot) glcolor(gray%50)) ///	
-        legend(position(6)  col(4)) ///
-		xtitle("")  ytitle("") ///
-		name(rips40_`control', replace)
-graph export "${graphs_pila}/balanced_est1_pila30_`control'.png", replace			
-}
-
-
-import excel "${root}\outputs\20240620-pila_est40.xlsx", firstrow clear
-
-gen qtr = quarterly(period,"YQ")
-format qtr %tq
-
-foreach control of newlist asalariado ibc_salud n_registros sal_dias_cot {
-
-twoway (scatter coef_robust qtr if variable=="`control'", ///
-                msize(vsmall) msymbol(O) mcolor(midblue) lwidth(vthin)) ///
-       (rcap ci_lower_robust ci_upper_robust qtr if variable=="`control'", ///
-	            lcolor(emidblue) lwidth(thick) lwidth(vthin)), ///
-       xtitle(Trimestre) ytitle(Coeficiente) ///
-       title("") ///
-       legend(order(1 "Point Estimate" 2 "95% Confidence Interval")) ///
-       graphregion(color(white)) bgcolor(white) ///
-       yline(0, lcolor(gray) lpattern(solid) ) ///
-		xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
-		xline(231, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
-        xlabel(#32, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
-        ylabel(#10, labsize(vsmall)  grid glpattern(tight_dot) glcolor(gray%50)) ///	
-        legend(position(6)  col(4)) ///
-		xtitle("")  ytitle("") ///
-		name(rips40_`control', replace)
-graph export "${graphs_pila}/balanced_est1_pila40_`control'.png", replace			
-}
-
-
-import excel "${root}\outputs\20240620-rips_est30.xlsx", firstrow clear
+**** RIPS ----------------------------------------------------------------------  
+import excel "${root}\outputs\20240627-rips_est30.xlsx", firstrow clear
 
 gen qtr = quarterly(period,"YQ")
 format qtr %tq
@@ -190,18 +141,17 @@ twoway (scatter coef_robust qtr if variable=="`control'", ///
        graphregion(color(white)) bgcolor(white) ///
        yline(0, lcolor(gray) lpattern(solid) ) ///
 		xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
-		xline(231, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+		xline(229, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
         xlabel(#32, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
-        ylabel(#10, labsize(vsmall)  grid glpattern(tight_dot) glcolor(gray%50)) ///	
+        ylabel(#10, labsize(vsmall)  grid glpattern(tight_dot) glcolor(gray%50) format(%9.3f))  ///	
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") ///
-		note("Using 30.56 points as the cutoff to estimate") ///
-		name(rips40_`control', replace)			
-graph export "${graphs_rips}/balanced_est1_rips30_`control'.png", replace				
+		note("Using 30.56 points as the cutoff to estimate" "Running variable adjusted to capture the impact on treated (individuals under the cutoff)") ///
+		name(rips30_`control', replace)			
+graph export "${graphs_rips}/20240627-`control'_rips30.png", replace				
 }
 
-
-import excel "${root}\outputs\20240620-rips_est40.xlsx", firstrow clear
+import excel "${root}\outputs\20240627-rips_est40.xlsx", firstrow clear
 
 gen qtr = quarterly(period,"YQ")
 format qtr %tq
@@ -218,15 +168,75 @@ twoway (scatter coef_robust qtr if variable=="`control'", ///
        graphregion(color(white)) bgcolor(white) ///
        yline(0, lcolor(gray) lpattern(solid) ) ///
 		xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
-		xline(231, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+		xline(229, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+        xlabel(#32, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
+        ylabel(#10, labsize(vsmall)  grid glpattern(tight_dot) glcolor(gray%50) format(%9.3f)) ///	
+        legend(position(6)  col(4)) ///
+		xtitle("")  ytitle("") ///
+		note("Using 40 points as the cutoff to estimate" "Running variable adjusted to capture the impact on treated (individuals under the cutoff)") ///		
+		name(rips40_`control', replace)			
+graph export "${graphs_rips}/20240627-`control'_rips40.png", replace				
+}
+  
+  
+  
+**** PILA ----------------------------------------------------------------------  
+import excel "${root}\outputs\20240627-pila_est30.xlsx", firstrow clear
+
+gen qtr = quarterly(period,"YQ")
+format qtr %tq
+
+foreach control of newlist asalariado ibc_salud n_registros sal_dias_cot {
+
+twoway (scatter coef_robust qtr if variable=="`control'", ///
+                msize(vsmall) msymbol(O) mcolor(midblue) lwidth(vthin)) ///
+       (rcap ci_lower_robust ci_upper_robust qtr if variable=="`control'", ///
+	            lcolor(emidblue) lwidth(thick) lwidth(vthin)), ///
+       xtitle(Trimestre) ytitle(Coeficiente) ///
+       title("") ///
+       legend(order(1 "Point Estimate" 2 "95% Confidence Interval")) ///
+       graphregion(color(white)) bgcolor(white) ///
+       yline(0, lcolor(gray) lpattern(solid) ) ///
+		xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+		xline(229, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
         xlabel(#32, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
         ylabel(#10, labsize(vsmall)  grid glpattern(tight_dot) glcolor(gray%50)) ///	
         legend(position(6)  col(4)) ///
 		xtitle("")  ytitle("") ///
-		note("Using 40 points as the cutoff to estimate") ///		
-		name(rips40_`control', replace)			
-graph export "${graphs_rips}/balanced_est1_rips40_`control'.png", replace				
+		note("Using 30.56 points as the cutoff to estimate" "Running variable adjusted to capture the impact on treated (individuals under the cutoff)") ///
+		name(pila30_`control', replace)
+graph export "${graphs_pila}/20240627-`control'_pila30.png", replace			
 }
+
+
+import excel "${root}\outputs\20240627-pila_est40.xlsx", firstrow clear
+
+gen qtr = quarterly(period,"YQ")
+format qtr %tq
+
+foreach control of newlist asalariado ibc_salud n_registros sal_dias_cot {
+
+twoway (scatter coef_robust qtr if variable=="`control'", ///
+                msize(vsmall) msymbol(O) mcolor(midblue) lwidth(vthin)) ///
+       (rcap ci_lower_robust ci_upper_robust qtr if variable=="`control'", ///
+	            lcolor(emidblue) lwidth(thick) lwidth(vthin)), ///
+       xtitle(Trimestre) ytitle(Coeficiente) ///
+       title("") ///
+       legend(order(1 "Point Estimate" 2 "95% Confidence Interval")) ///
+       graphregion(color(white)) bgcolor(white) ///
+       yline(0, lcolor(gray) lpattern(solid) ) ///
+		xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+		xline(229, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+        xlabel(#32, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
+        ylabel(#10, labsize(vsmall)  grid glpattern(tight_dot) glcolor(gray%50)) ///	
+        legend(position(6)  col(4)) ///
+		xtitle("")  ytitle("")  ///
+		note("Using 40 points as the cutoff to estimate" "Running variable adjusted to capture the impact on treated (individuals under the cutoff)") ///
+		name(pila40_`control', replace)
+graph export "${graphs_pila}/20240627-`control'_pila40.png", replace			
+}
+
+
 
 
 
