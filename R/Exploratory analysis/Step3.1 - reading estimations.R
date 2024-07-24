@@ -47,3 +47,28 @@ write.xlsx(pila_est30, file = file.path(output_folder, "20240627-pila_est30.xlsx
 write.xlsx(rips_est40, file = file.path(output_folder, "20240627-rips_est40.xlsx"))
 write.xlsx(pila_est40, file = file.path(output_folder, "20240627-pila_est40.xlsx"))
 
+# Results from Jul 16, 2024 (Estimations using balanced panel and main-base)
+
+est30 <- sprintf('%s/%s', output_folder, 'parquet/20240715-table_est30.parquet')
+est40 <- sprintf('%s/%s', output_folder, 'parquet/20240715-table_est40.parquet')
+
+
+est30 <- open_dataset(est30) %>%  collect
+est40 <- open_dataset(est40) %>%  collect
+
+
+write.xlsx(est30, file = file.path(output_folder, "20240715-est30.xlsx"))
+write.xlsx(est40, file = file.path(output_folder, "20240715-est40.xlsx"))
+
+
+# Reading parquet  with control mean
+control_mean <- sprintf('%s/%s', output_folder, 'parquet/20240723-control_mean.parquet')
+control_mean <- open_dataset(control_mean) %>%  collect
+
+control_mean$mean_control <- round(control_mean$mean_control, 3)
+
+
+
+
+
+

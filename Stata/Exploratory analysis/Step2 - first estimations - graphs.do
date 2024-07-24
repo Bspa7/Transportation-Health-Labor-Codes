@@ -1,6 +1,7 @@
 
 global root "D:\Steban Pineda\Documents\DIME\Transportation and health"
 global results     "${root}/Results_run_banrep"
+global figures     "${root}/outputs/figures"
 global graphs_rips "${root}/outputs/figures/Descriptives_RIPS"
 global graphs_pila "${root}/outputs/figures/Descriptives_PILA"
 
@@ -122,7 +123,7 @@ graph export "${graphs_rips}/rips40_`control'.png", replace
       treated (individuals under the cutoff.
    2. Graphics with a renewed aesthetic.
   */ 
-
+/*
 **** RIPS ----------------------------------------------------------------------  
 import excel "${root}\outputs\20240627-rips_est30.xlsx", firstrow clear
 
@@ -235,6 +236,121 @@ twoway (scatter coef_robust qtr if variable=="`control'", ///
 		name(pila40_`control', replace)
 graph export "${graphs_pila}/20240627-`control'_pila40.png", replace			
 }
+*/
+
+* Results from Jun 27, 2024 (Estimations using balanced panel) *****************
+/* 1. This estimations has the running variable adjusted to capture the impact on
+      treated (individuals under the cutoff.
+   2. Graphics with a renewed aesthetic.
+  */ 
+
+**** 30pts ----------------------------------------------------------------------  
+import excel "${root}\outputs\20240715-est30.xlsx", firstrow clear
+
+gen qtr = quarterly(period,"YQ")
+format qtr %tq
+
+foreach control of newlist n_visitas c_preven c_prenat c_cancer c_cardio c_respir n_consultas n_hospitalizaciones n_procedimientos n_urgencias d_visitas d_consultas d_hospitalizaciones d_procedimientos d_urgencias d_cancer d_cardio d_preven d_prenat d_respir pila_depen pila_indep ibc_salud d_registros n_registros sal_dias_cot {
+	
+twoway (scatter coef_robust qtr if variable=="`control'" & qtr>=219, ///
+                msize(vsmall) msymbol(O) mcolor(midblue) lwidth(vthin)) ///
+       (rcap ci_lower_robust ci_upper_robust qtr if variable=="`control'" & qtr>=219, ///
+	            lcolor(emidblue) lwidth(thick) lwidth(vthin)), ///
+       xtitle(Trimestre) ytitle(Coeficiente) ///
+       title("") ///
+       legend(order(1 "Point Estimate" 2 "95% Confidence Interval")) ///
+       graphregion(color(white)) bgcolor(white) ///
+       yline(0, lcolor(gray) lpattern(solid) ) ///
+		xline(229, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+        xlabel(#21, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
+        ylabel(#10, labsize(vsmall)  grid glpattern(tight_dot) glcolor(gray%50) format(%9.2f))  ///	
+        legend(position(6)  col(4)) ///
+		xtitle("")  ytitle("") ///
+		note("Law: After feb-2017 the cutoff was reduced to 30.56 and the discount decreased from 50% to 25%" "Running variable adjusted to capture the impact on treated (individuals under the cutoff - 30.56 points)") ///
+		name(score30_`control', replace)	
+graph export "${figures}/20240705-results/est30_`control'.png", replace				
+}
+
+ 
+**** 40pts ----------------------------------------------------------------------   
+import excel "${root}\outputs\20240715-est40.xlsx", firstrow clear
+
+gen qtr = quarterly(period,"YQ")
+format qtr %tq
+
+foreach control of newlist n_visitas c_preven c_prenat c_cancer c_cardio c_respir n_consultas n_hospitalizaciones n_procedimientos n_urgencias d_visitas d_consultas d_hospitalizaciones d_procedimientos d_urgencias d_cancer d_cardio d_preven d_prenat d_respir pila_depen pila_indep ibc_salud d_registros n_registros sal_dias_cot {
+
+twoway (scatter coef_robust qtr if variable=="`control'" & qtr<=224, ///
+                msize(vsmall) msymbol(O) mcolor(midblue) lwidth(vthin)) ///
+       (rcap ci_lower_robust ci_upper_robust qtr if variable=="`control'" & qtr<=224, ///
+	            lcolor(emidblue) lwidth(thick) lwidth(vthin)), ///
+       xtitle(Trimestre) ytitle(Coeficiente) ///
+       title("") ///
+       legend(order(1 "Point Estimate" 2 "95% Confidence Interval")) ///
+       graphregion(color(white)) bgcolor(white) ///
+       yline(0, lcolor(gray) lpattern(solid) ) ///
+		xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+        xlabel(#17, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
+        ylabel(#10, labsize(vsmall)  grid glpattern(tight_dot) glcolor(gray%50) format(%9.2f))  ///	
+        legend(position(6)  col(4)) ///
+		xtitle("")  ytitle("") ///
+		note("First Law: After jan-2014 the cutoff was defined in 40 with a 50% discount in the ticket price" "Running variable adjusted to capture the impact on treated (individuals under the cutoff - 40 points)") ///
+		name(score40_`control', replace)	
+graph export "${figures}/20240705-results/est40_`control'.png", replace			
+}
+
+
+**** Balance 30pts --------------------------------------------------------------  
+import excel "${root}\outputs\20240715-est30.xlsx", firstrow clear
+	drop if regexm(variable, "d_") | regexm(variable, "c_") | regexm(variable, "n_")
+	drop if variable=="pila_depen"   | variable=="pila_indep" | ///
+	        variable=="sal_dias_cot" | variable=="ingresos"
+	drop period
+	duplicates drop
+	tab variable
+	format coef se_rob pv_rob %9.3f
+	keep variable coef_robust se_rob pv_rob N1 N2
+	order variable coef_robust se_rob N1 N2 pv_rob
+	edit
+
+import excel "${root}\outputs\20240715-est40.xlsx", firstrow clear
+	drop if regexm(variable, "d_") | regexm(variable, "c_") | regexm(variable, "n_")
+	drop if variable=="pila_depen"   | variable=="pila_indep" | ///
+	        variable=="sal_dias_cot" | variable=="ingresos"
+	drop period
+	duplicates drop
+	tab variable
+	format coef se_rob pv_rob %9.3f
+	keep variable coef_robust se_rob pv_rob N1 N2
+	order variable coef_robust se_rob N1 N2 pv_rob
+	edit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

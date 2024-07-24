@@ -5,7 +5,7 @@ for (paquete in paquetes) {
     library(paquete, character.only = TRUE)
   }
 }
-
+z
 # Directory and creating a new folder to save all the results ------------------
 
 base_dir <- "//wmedesrv/GAMMA/Christian Posso/_banrep_research/proyectos/project_transport_health"
