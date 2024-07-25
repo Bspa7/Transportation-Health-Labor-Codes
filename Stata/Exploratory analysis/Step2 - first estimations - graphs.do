@@ -244,6 +244,22 @@ graph export "${graphs_pila}/20240627-`control'_pila40.png", replace
    2. Graphics with a renewed aesthetic.
   */ 
 
+  
+/* Control mean
+import excel "${root}\outputs\20240723-control_mean.xlsx", firstrow clear
+	ren periodo period
+	duplicates report variable period
+	keep if grupo=="cutoff30"
+save "${root}\outputs\20240723-control_mean30", replace
+
+import excel "${root}\outputs\20240723-control_mean.xlsx", firstrow clear
+	ren periodo period
+	duplicates report variable period
+	keep if grupo=="cutoff40"
+save "${root}\outputs\20240723-control_mean40", replace  
+*/ 
+  
+  
 **** 30pts ----------------------------------------------------------------------  
 import excel "${root}\outputs\20240715-est30.xlsx", firstrow clear
 
@@ -326,9 +342,10 @@ import excel "${root}\outputs\20240715-est40.xlsx", firstrow clear
 	edit
 
 
-
-
-
+import excel "${root}\outputs\20240715-est30.xlsx", firstrow clear
+	gen qtr = quarterly(period,"YQ")
+	format qtr %tq
+	merge 1:1 variable period using "${root}\outputs\20240723-control_mean30", keep(3)
 
 
 
