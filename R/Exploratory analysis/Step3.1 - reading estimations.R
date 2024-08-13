@@ -68,6 +68,14 @@ control_mean <- open_dataset(control_mean) %>%  collect
 control_mean$mean_control <- round(control_mean$mean_control, 3)
 write.xlsx(control_mean, file = file.path(output_folder, "20240723-control_mean.xlsx"))
 
+# Results from Aug 02, 2024 (Estimations using different groups) 
+results <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240801-table_est_v2.parquet')) %>% collect()
+results$control_mean <- round(results$control_mean, 3)
+write.xlsx(results, file = file.path(output_folder, "20240801-table_est_v2.xlsx"))
+
+
+
+
 
 
 

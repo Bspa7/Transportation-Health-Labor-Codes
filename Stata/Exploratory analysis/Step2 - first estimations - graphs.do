@@ -348,21 +348,149 @@ import excel "${root}\outputs\20240715-est30.xlsx", firstrow clear
 	merge 1:1 variable period using "${root}\outputs\20240723-control_mean30", keep(3)
 
 
+**** New results using specific score ranges in SISBEN -------------------------  
+
+import excel "${root}\outputs\20240801-table_est_v2.xlsx", firstrow clear
+
+gen qtr = quarterly(period,"YQ")
+format qtr %tq
+
+tab 	dataset
+replace dataset = "verify"  if dataset=="est2535_verification"
+replace dataset = "est2040" if regexm(dataset, "est2040")
+replace dataset = "est2535" if regexm(dataset, "est2535")
+replace dataset = "est3050" if regexm(dataset, "est3050")
+replace dataset = "est3545" if regexm(dataset, "est3545")
+
+* Treatment: people under 30.56 points in the group between 20 and 40 points
+
+foreach group of newlist est2040 {
+
+foreach control of newlist n_visitas c_preven c_prenat c_cancer c_cardio c_respir n_consultas n_hospitalizaciones n_procedimientos n_urgencias d_visitas d_consultas d_hospitalizaciones d_procedimientos d_urgencias d_cancer d_cardio d_preven d_prenat d_respir pila_depen pila_indep ibc_salud d_registros n_registros sal_dias_cot  {
+    twoway (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr <= 216, ///
+                    msize(vsmall) msymbol(O) mcolor(midblue) lwidth(vthin)) ///
+           (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr > 216 & qtr <= 229, ///
+                    msize(vsmall) msymbol(O) mcolor(green) lwidth(vthin)) ///
+           (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr >= 230, ///
+                    msize(vsmall) msymbol(O) mcolor(red) lwidth(vthin)) ///
+           (rcap ci_lower_robust ci_upper_robust qtr if dataset=="`group'" & variable=="`control'", ///
+	                lcolor(emidblue) lwidth(thick) lwidth(vthin)), ///
+           xtitle(Trimestre) ytitle(Coeficiente) ///
+           title("") ///
+           legend(order(1 "No subsidy vs No subsidy" 2 "50% subsidy vs 50% subsidy" 3 "25% subsidy vs No subsidy")) ///
+           graphregion(color(white)) bgcolor(white) ///
+           yline(0, lcolor(gray) lpattern(solid) ) ///
+		   xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///	   
+		   xline(229, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+           xlabel(#32, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
+           ylabel(#10, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) format(%9.2f)) ///	
+           legend(position(6) col(4)) ///
+		   xtitle("") ytitle("") ///
+		   note("Running variable adjusted to capture the impact on treated: people under 30 points") ///
+		   name(`group'_`control', replace)	
+
+graph export "${figures}/20240801-results/`group'_`control'.png", replace		   
+
+}
+}
+
+* Treatment: people under 30.56 points in the group between 25 and 35 points
+
+foreach group of newlist est2535 {
+
+foreach control of newlist n_visitas c_preven c_prenat c_cancer c_cardio c_respir n_consultas n_hospitalizaciones n_procedimientos n_urgencias d_visitas d_consultas d_hospitalizaciones d_procedimientos d_urgencias d_cancer d_cardio d_preven d_prenat d_respir pila_depen pila_indep ibc_salud d_registros n_registros sal_dias_cot  {
+    twoway (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr <= 216, ///
+                    msize(vsmall) msymbol(O) mcolor(midblue) lwidth(vthin)) ///
+           (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr > 216 & qtr <= 229, ///
+                    msize(vsmall) msymbol(O) mcolor(green) lwidth(vthin)) ///
+           (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr >= 230, ///
+                    msize(vsmall) msymbol(O) mcolor(red) lwidth(vthin)) ///
+           (rcap ci_lower_robust ci_upper_robust qtr if dataset=="`group'" & variable=="`control'", ///
+	                lcolor(emidblue) lwidth(thick) lwidth(vthin)), ///
+           xtitle(Trimestre) ytitle(Coeficiente) ///
+           title("") ///
+           legend(order(1 "No subsidy vs No subsidy" 2 "50% subsidy vs 50% subsidy" 3 "25% subsidy vs No subsidy")) ///
+           graphregion(color(white)) bgcolor(white) ///
+           yline(0, lcolor(gray) lpattern(solid) ) ///
+		   xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///	   
+		   xline(229, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+           xlabel(#32, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
+           ylabel(#10, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) format(%9.2f)) ///	
+           legend(position(6) col(4)) ///
+		   xtitle("") ytitle("") ///
+		   note("Running variable adjusted to capture the impact on treated: people under 30 points") ///
+		   name(`group'_`control', replace)	
+
+graph export "${figures}/20240801-results/`group'_`control'.png", replace		   
+		   
+}
+}
 
 
 
+* Treatment: people under 40 points in the group between 30 and 50 points
 
+foreach group of newlist est3050 {
 
+foreach control of newlist n_visitas c_preven c_prenat c_cancer c_cardio c_respir n_consultas n_hospitalizaciones n_procedimientos n_urgencias d_visitas d_consultas d_hospitalizaciones d_procedimientos d_urgencias d_cancer d_cardio d_preven d_prenat d_respir pila_depen pila_indep ibc_salud d_registros n_registros sal_dias_cot  {
+    twoway (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr <= 216, ///
+                    msize(vsmall) msymbol(O) mcolor(midblue) lwidth(vthin)) ///
+           (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr > 216 & qtr <= 229, ///
+                    msize(vsmall) msymbol(O) mcolor(green) lwidth(vthin)) ///
+           (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr >= 230, ///
+                    msize(vsmall) msymbol(O) mcolor(red) lwidth(vthin)) ///
+           (rcap ci_lower_robust ci_upper_robust qtr if dataset=="`group'" & variable=="`control'", ///
+	                lcolor(emidblue) lwidth(thick) lwidth(vthin)), ///
+           xtitle(Trimestre) ytitle(Coeficiente) ///
+           title("") ///
+           legend(order(1 "No subsidy vs No subsidy" 2 "50% subsidy vs No subsidy" 3 "No subsidy vs No subsidy")) ///
+           graphregion(color(white)) bgcolor(white) ///
+           yline(0, lcolor(gray) lpattern(solid) ) ///
+		   xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///	   
+		   xline(229, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+           xlabel(#32, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
+           ylabel(#10, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) format(%9.2f)) ///	
+           legend(position(6) col(4)) ///
+		   xtitle("") ytitle("") ///
+		   note("Running variable adjusted to capture the impact on treated: people under 40 points") ///
+		   name(`group'_`control', replace)	
 
+graph export "${figures}/20240801-results/`group'_`control'.png", replace		   
+		   
+}
+}
 
+* Treatment: people under 40 points in the group between 35 and 45 points
 
+foreach group of newlist est3545 {
 
-
-
-
-
-
-
+foreach control of newlist n_visitas c_preven c_prenat c_cancer c_cardio c_respir n_consultas n_hospitalizaciones n_procedimientos n_urgencias d_visitas d_consultas d_hospitalizaciones d_procedimientos d_urgencias d_cancer d_cardio d_preven d_prenat d_respir pila_depen pila_indep ibc_salud d_registros n_registros sal_dias_cot  {
+    twoway (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr <= 216, ///
+                    msize(vsmall) msymbol(O) mcolor(midblue) lwidth(vthin)) ///
+           (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr > 216 & qtr <= 229, ///
+                    msize(vsmall) msymbol(O) mcolor(green) lwidth(vthin)) ///
+           (scatter coef_robust qtr if dataset=="`group'" & variable=="`control'" & qtr >= 230, ///
+                    msize(vsmall) msymbol(O) mcolor(red) lwidth(vthin)) ///
+           (rcap ci_lower_robust ci_upper_robust qtr if dataset=="`group'" & variable=="`control'", ///
+	                lcolor(emidblue) lwidth(thick) lwidth(vthin)), ///
+           xtitle(Trimestre) ytitle(Coeficiente) ///
+           title("") ///
+           legend(order(1 "No subsidy vs No subsidy" 2 "50% subsidy vs No subsidy" 3 "No subsidy vs No subsidy")) ///
+           graphregion(color(white)) bgcolor(white) ///
+           yline(0, lcolor(gray) lpattern(solid) ) ///
+		   xline(216, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///	   
+		   xline(229, lpattern(vshortdash) lwidth(vthin) lcolor(red)) ///
+           xlabel(#32, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) angle(45)) ///
+           ylabel(#10, labsize(vsmall) grid glpattern(tight_dot) glcolor(gray%50) format(%9.2f)) ///	
+           legend(position(6) col(4)) ///
+		   xtitle("") ytitle("") ///
+		   note("Running variable adjusted to capture the impact on treated: people under 40 points") ///
+		   name(`group'_`control', replace)	
+		   
+graph export "${figures}/20240801-results/`group'_`control'.png", replace		   
+		   
+}
+}
 
 
 
