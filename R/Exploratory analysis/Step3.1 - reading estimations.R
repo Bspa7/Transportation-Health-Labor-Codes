@@ -74,8 +74,9 @@ results$control_mean <- round(results$control_mean, 3)
 write.xlsx(results, file = file.path(output_folder, "20240801-table_est_v2.xlsx"))
 
 
-
-
+# Reading results from 14-aug-2024, results with global descriptives
+results <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240814-gnral_stats.parquet')) %>% collect()
+write.xlsx(results, file = file.path(output_folder, "20240814-gnral_stats.xlsx"))
 
 
 
