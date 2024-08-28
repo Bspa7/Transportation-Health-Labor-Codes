@@ -78,6 +78,18 @@ write.xlsx(results, file = file.path(output_folder, "20240801-table_est_v2.xlsx"
 results <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240814-gnral_stats.parquet')) %>% collect()
 write.xlsx(results, file = file.path(output_folder, "20240814-gnral_stats.xlsx"))
 
+# Reading results from 26-aug-2024, results with basic descriptives
+results <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240826-gnral_counts.parquet')) %>% collect()
+write.xlsx(results, file = file.path(output_folder, "20240826-gnral_counts.xlsx"))
+results <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240826-gnral_stats.parquet')) %>% collect()
+write.xlsx(results, file = file.path(output_folder, "20240826-gnral_stats.xlsx"))
+
+
+
+
+
+
+
 
 
 
