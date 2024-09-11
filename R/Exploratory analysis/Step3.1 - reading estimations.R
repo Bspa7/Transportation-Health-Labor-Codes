@@ -84,6 +84,34 @@ write.xlsx(results, file = file.path(output_folder, "20240826-gnral_counts.xlsx"
 results <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240826-gnral_stats.parquet')) %>% collect()
 write.xlsx(results, file = file.path(output_folder, "20240826-gnral_stats.xlsx"))
 
+# Reading results from 05-sep-2024, results with descriptives
+
+# Loop para iterar sobre los números del 1 al 6
+for (i in 1:6) {
+  # Construir el nombre del archivo .parquet
+  parquet_file <- sprintf("20240905-stats_set1_step%d.parquet", i)
+  
+  # Abrir el archivo .parquet y recolectar los datos
+  results <- open_dataset(sprintf('%s/%s', output_folder, paste0('parquet/', parquet_file))) %>% collect()
+  
+  # Guardar los datos en formato .xlsx
+  write.xlsx(results, file = file.path(output_folder, paste0(parquet_file, ".xlsx")))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

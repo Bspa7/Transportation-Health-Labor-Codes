@@ -1018,10 +1018,289 @@ twoway (bar p6_`var'_s month if inrange(month, 675,699), barwidth(0.7) color(ebg
 		
 		
 		
+**# Sep-09 | Descriptives	
+	
+********************************************************************************
+*  New results: Global descriptives (Comments of Sveta and Guadalupe) Aug-14
+********************************************************************************
+global figures "${graphs_rips}/20240822-stats"
+import excel "${root}\outputs\20240905-stats_set1_step5.parquet.xlsx", firstrow clear		
+
 		
+* Creating programs to some figures --------------------------------------------
+cap program drop line_plot_total
+program define line_plot_total
+args variable color titulo
+
+twoway (line `variable' month, lcol(`color')),  ///
+        xlabel(#13, labsize(small) grid angle(45)) ///
+        ylabel(#10, labsize(small) format(%9.0fc)) ///
+        xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
+		legend(position(6)  col(4)) ///
+		xtitle("")  ytitle("") title("`titulo'") ///
+		note("") name(`variable'_t, replace)
+	
+twoway (line `variable' month if inrange(month, 675,699), lcol(`color')),  ///
+        xlabel(#8, /*labsize(vsmall)*/ grid angle(45)) ///
+        ylabel(#10, labsize(small) format(%9.0fc)) ///
+        xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
+		legend(position(6)  col(4)) ///
+		xtitle("")  ytitle("") title("`titulo'") ///
+		note("") name(`variable'_z, replace)
+	
+	
+end
+
+cap program drop line_gender_total
+program define line_gender_total
+args var_female var_male name titulo	
+twoway (line `var_female' month, lcol(midblue)) ///					   
+       (line `var_male'   month, lcol(emidblue)), ///  
+		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+        xlabel(#13, labsize(small) grid angle(45)) ///
+        ylabel(#10, labsize(small) format(%9.2fc)) ///
+        legend(position(6)  col(4)) ///
+		xtitle("")  ytitle("Percentage (%)") title("`titulo'") ///
+		legend(label(1 "Female")) ///
+		legend(label(2 "Male")) ///
+		note("") name(`name'_t, replace)	
 		
+twoway (line `var_female' month if inrange(month, 675,699), lcol(midblue)) ///					   
+       (line `var_male'   month if inrange(month, 675,699), lcol(emidblue)), ///  
+		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+        xlabel(#8, /*labsize(vsmall)*/ grid angle(45)) ///
+        ylabel(#10, labsize(small) format(%9.2fc)) ///
+        legend(position(6)  col(4)) ///
+		xtitle("")  ytitle("Percentage (%)") title("`titulo'") ///
+		legend(label(1 "Female")) ///
+		legend(label(2 "Male")) ///
+		note("") name(`name'_z, replace)		
 		
+end	
 		
+cap program drop line_plot_score_zoom
+program define line_plot_score_zoom
+args variable color titulo
+
+twoway (line `variable' month if inrange(month, 675,699), lcol(`color')),  ///
+        xlabel(#8, labsize(small) grid angle(45)) ///
+        ylabel(#10, /*labsize(vsmall)*/ format(%9.3fc)) ///
+        xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black)) ///
+		legend(position(6)  col(4)) ///
+		xtitle("")  ytitle("") title("Score range: `titulo'") ///
+		note("") name(`variable'_z, replace)
+	
+end
+	
+	
+* Generating variables that I'll use -------------------------------------------
+* Monthly and auxiliar variables
+	ren *4245* *4045*
+	gen    month = mofd(monthly_date)
+	format month %tm
+	order  month, after(monthly_date)
+	gen x = month
+
+* Main variables by gender	
+foreach gender of newlist female male {
+
+dis in red "Creating variables for: `gender'"
+	gen p_visitas_`gender'= (n_visitas_rips_`gender'/n_visitas_rips_total)*100      
+	gen p_consul_`gender'= (n_consultas_`gender'/n_consultas_total)*100         
+	gen p_hospit_`gender'= (n_hospitalizaciones_`gender'/n_hospitalizaciones_total)*100 
+	gen p_proced_`gender'= (n_procedimientos_`gender'/n_procedimientos_total)*100    
+	gen p_urgenc_`gender'= (n_urgencias_`gender'/n_urgencias_total)*100         
+	gen p_preven_`gender'= (c_preven_`gender'/c_preven_total)*100            
+	gen p_prenat_`gender'= (c_prenat_`gender'/c_prenat_total)*100         
+	
+}
+* All Variables by score
+foreach score of numlist 1520 2025 2530 3035 3540 4045 {	
+
+dis in red " Working on: `score'"
+	gen visita_rips_s`score'   = (n_visitas_rips_s`score'/n_visitas_rips_total)
+	gen visita_rips_m_s`score' = (n_visitas_rips_s`score'_m/n_visitas_rips_total)                         
+	gen visita_rips_f_s`score' = (n_visitas_rips_s`score'_f/n_visitas_rips_total)                        
+	gen consul_s`score'        = (n_consultas_s`score'/n_consultas_total)                 
+	gen consul_m_s`score'      = (n_consultas_s`score'_m/n_consultas_total)                  
+	gen consul_f_s`score'      = (n_consultas_s`score'_f/n_consultas_total)                
+	gen hospit_s`score'        = (n_hospitalizaciones_s`score'/n_hospitalizaciones_total)    
+	gen hospit_m_s`score'      = (n_hospitalizaciones_s`score'_m/n_hospitalizaciones_total)  
+	gen hospit_f_s`score'      = (n_hospitalizaciones_s`score'_f/n_hospitalizaciones_total)  
+	gen proced_s`score'        = (n_procedimientos_s`score'/n_procedimientos_total)       
+	gen proced_m_s`score'      = (n_procedimientos_s`score'_m/n_procedimientos_total)      
+	gen proced_f_s`score'      = (n_procedimientos_s`score'_f/n_procedimientos_total)     
+	gen urgenc_s`score'        = (n_urgencias_s`score'/n_urgencias_total)                 
+	gen urgenc_m_s`score'      = (n_urgencias_s`score'_m/n_urgencias_total)               
+	gen urgenc_f_s`score'      = (n_urgencias_s`score'_f/n_urgencias_total)                 
+	gen preven_s`score'        = (c_preven_s`score'/c_preven_total)                          
+	gen preven_m_s`score'      = (c_preven_s`score'_m/c_preven_total)                        
+	gen preven_f_s`score'      = (c_preven_s`score'_f/c_preven_total)                        
+	gen prenat_s`score'        = (c_prenat_s`score'/c_prenat_total)                             
+	gen prenat_m_s`score'      = (c_prenat_s`score'_m/c_prenat_total)                           
+	gen prenat_f_s`score'      = (c_prenat_s`score'_f/c_prenat_total)                           
+}	
+
+foreach var of newlist visita_rips_s visita_rips_m_s visita_rips_f_s consul_s consul_m_s consul_f_s hospit_s hospit_m_s hospit_f_s proced_s proced_m_s proced_f_s urgenc_s urgenc_m_s urgenc_f_s preven_s preven_m_s preven_f_s prenat_s prenat_m_s prenat_f_s {
+
+dis in red "`var'"	
+	gen p1_`var' = `var'1520
+	gen p2_`var' = `var'1520+`var'2025	
+	gen p3_`var' = `var'1520+`var'2025+`var'2530	
+	gen p4_`var' = `var'1520+`var'2025+`var'2530+`var'3035	
+	gen p5_`var' = `var'1520+`var'2025+`var'2530+`var'3035+`var'3540
+	gen p6_`var' = `var'1520+`var'2025+`var'2530+`var'3035+`var'3540+`var'4045	
+
+	
+}
+gen zero = 0
+
+
+* Making figures ---------------------------------------------------------------
+
+* General series
+	line_plot_total n_visitas_rips_total      blue
+	line_plot_total n_consultas_total         blue Consultations
+	line_plot_total n_hospitalizaciones_total blue Hospitalizations
+	line_plot_total n_procedimientos_total    blue Procedures
+	line_plot_total n_urgencias_total         blue Emergencies
+	line_plot_total c_preven_total            blue Preventive
+	line_plot_total c_prenat_total            blue Prenatal
+
+	graph combine n_consultas_total_t n_hospitalizaciones_total_t ///
+	      n_procedimientos_total_t n_urgencias_total_t, name(total_modules, replace)
+	graph combine c_preven_total_t c_prenat_total_t, c(1) name(total_consultations, replace)
+		
+	graph combine n_consultas_total_z n_hospitalizaciones_total_z ///
+	      n_procedimientos_total_z n_urgencias_total_z, name(zoom_modules, replace)
+	graph combine c_preven_total_z c_prenat_total_z, c(1) name(zoom_consultations, replace)
+
+	graph export "${figures}/total_rips.png",         name(n_visitas_rips_total_t) replace
+	graph export "${figures}/total_rips_zoom.png",    name(n_visitas_rips_total_z) replace		
+	graph export "${figures}/total_modules.png",      name(total_modules) replace	
+	graph export "${figures}/total_modules_zoom.png", name(zoom_modules) replace	
+	graph export "${figures}/total_consultations.png", name(total_consultations) replace
+	graph export "${figures}/total_consultations_zoom.png", name(zoom_consultations)  replace	
+	
+	graph close *	
+	
+
+* General series by gender percentage
+	line_gender_total p_visitas_female p_visitas_male gender_total
+	line_gender_total p_consul_female  p_consul_male  gender_consul Consultations   	
+	line_gender_total p_hospit_female  p_hospit_male  gender_hospit Hospitalizations	
+	line_gender_total p_proced_female  p_proced_male  gender_proced Procedures      	
+	line_gender_total p_urgenc_female  p_urgenc_male  gender_urgenc Emergencies     	
+	line_gender_total p_preven_female  p_preven_male  gender_preven Preventive      
+	line_plot_total p_prenat_female  midblue
+	
+	graph combine gender_consul_t gender_hospit_t gender_proced_t ///
+	              gender_urgenc_t, name(total_g_modules, replace)
+	graph combine gender_consul_z gender_hospit_z gender_proced_z ///
+	              gender_urgenc_z, name(zoom_g_modules, replace)
+								  
+	graph close   gender_consul_t gender_hospit_t gender_proced_t /// 
+	              gender_urgenc_t gender_consul_z gender_hospit_z ///
+				  gender_proced_z gender_urgenc_z 
+				  
+	graph export "${figures}/gender_total.png" ,name(gender_total_t) replace
+	graph export "${figures}/gender_zoom.png" ,name(gender_total_z) replace
+	graph export "${figures}/gender_modules.png" ,name(total_g_modules) replace
+	graph export "${figures}/gender_modules_zoom.png" ,name(zoom_g_modules)  replace
+	graph export "${figures}/gender_preven_total.png" ,name(gender_preven_t) replace
+	graph export "${figures}/gender_prenat_total.png" ,name(p_prenat_female_t) replace
+	graph export "${figures}/gender_preven_zoom.png" ,name(gender_preven_z) replace
+	graph export "${figures}/gender_prenat_zoom.png" ,name(p_prenat_female_z) replace
+
+	graph close *	
+				
+				
+/*
+twoway rarea zero p_consul_female month, fcolor(midblue%50) lcolor(gray%1)   /// 
+    || rarea p_consul_female yy month, fcolor(emidblue%50) lcolor(gray%1) ///
+    ,  legend(order(1 "{fontface Times New Roman: Female}" ///
+	                 2 "{fontface Times New Roman: Male}")) /// 
+    ytitle("{fontface Times New Roman: Percentage (%)}") ///
+    xtitle("{fontface Times New Roman: }") ///	
+	xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+	legend(pos(6) c(2))	///			 
+	graphr(c(white))				  
+*/	
+
+		
+* General series by score percentage using time lines		
+foreach var of newlist visita_rips visita_rips_m visita_rips_f consul consul_m consul_f hospit hospit_m hospit_f proced proced_m proced_f urgenc urgenc_m urgenc_f preven preven_m preven_f prenat prenat_m prenat_f {
+	
+	line_plot_score_zoom `var'_s1520 blue 15-20
+	line_plot_score_zoom `var'_s2025 blue 20-25
+	line_plot_score_zoom `var'_s2530 blue 25-30.56
+	line_plot_score_zoom `var'_s3035 blue 30.56-35
+	line_plot_score_zoom `var'_s3540 blue 35-40
+	line_plot_score_zoom `var'_s4045 blue 40-45
+		
+	graph combine `var'_s1520_z `var'_s2025_z `var'_s2530_z `var'_s3035_z /// 
+				  `var'_s3540_z `var'_s4045_z, name(`var', replace)		
+	graph close `var'_s1520_z `var'_s2025_z `var'_s2530_z `var'_s3035_z  ///
+				`var'_s3540_z `var'_s4045_z			
+				
+	graph export "${figures}/score_lines_`var'.png" ,name(`var') replace				
+	graph close `var'				
+}
+
+foreach var of newlist visita_rips visita_rips_m visita_rips_f consul consul_m consul_f hospit hospit_m hospit_f proced proced_m proced_f urgenc urgenc_m urgenc_f preven preven_m preven_f prenat prenat_m prenat_f {
+	
+*	line_plot_score_zoom `var'_s1520 blue 15-20
+	line_plot_score_zoom `var'_s2025 blue 20-25
+	line_plot_score_zoom `var'_s2530 blue 25-30.56
+	line_plot_score_zoom `var'_s3035 blue 30.56-35
+	line_plot_score_zoom `var'_s3540 blue 35-40
+	line_plot_score_zoom `var'_s4045 blue 40-45
+		
+	graph combine  `var'_s2025_z `var'_s2530_z `var'_s3035_z /// 
+				  `var'_s3540_z `var'_s4045_z, name(`var', replace)	ycommon	
+	graph close  `var'_s2025_z `var'_s2530_z `var'_s3035_z  ///
+				`var'_s3540_z `var'_s4045_z			
+				
+	graph export "${figures}/yc_score_lines_`var'.png" ,name(`var') replace				
+	graph close `var'				
+}
+
+
+
+
+
+
+* General series by score percentage using bar figures		
+
+foreach var of newlist visita_rips visita_rips_m visita_rips_f consul consul_m consul_f hospit hospit_m hospit_f proced proced_m proced_f urgenc urgenc_m urgenc_f preven preven_m preven_f prenat prenat_m prenat_f {
+			
+twoway (bar p6_`var'_s month if inrange(month, 675,699), barwidth(0.7) color(ebg)) ///
+       (bar p5_`var'_s month if inrange(month, 675,699), barwidth(0.7) color(ebblue)) ///
+       (bar p4_`var'_s month if inrange(month, 675,699), barwidth(0.7) color(edkblue)) ///
+       (bar p3_`var'_s month if inrange(month, 675,699), barwidth(0.7) color(eltgreen)) ///
+       (bar p2_`var'_s month if inrange(month, 675,699), barwidth(0.7) color(olive_teal)) ///
+       (bar p1_`var'_s month if inrange(month, 675,699), barwidth(0.7) color(ltblue)), ///
+       ytitle("{fontface Times New Roman: Proportion Relative to Total by Score}") ///
+       xtitle("{fontface Times New Roman: }") ///
+       legend(order(6 "{fontface Times New Roman: Score range: 15-20}" ///
+                    5 "{fontface Times New Roman: Score range: 20-25}" ///
+                    4 "{fontface Times New Roman: Score range: 25-30}" ///
+                    3 "{fontface Times New Roman: Score range: 30-35}" ///
+                    2 "{fontface Times New Roman: Score range: 35-40}" ///
+                    1 "{fontface Times New Roman: Score range: 40-45}")) ///
+	   xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+	   ylabel(#10, format(%9.3fc)) ///
+	   xlabel(#25, labsize(vsmall) grid angle(45)) ///		
+	   legend(pos(6) c(3))	///	
+	   graphr(c(white))	///
+	   name(`var', replace)		
+	   
+	graph export "${figures}/score_bar_`var'.png" ,name(`var') replace				
+	graph close `var'				
+	   
+	   
+}		
+				
 		
 		
 		
