@@ -99,14 +99,44 @@ for (i in 1:6) {
 }
 
 
+# Reading results from 18-sep-2024, results with descriptives
+
+# Nombres de los archivos parquet y las hojas que se crearán en el Excel
+file_names <- c(
+  "20240918-stats_set2_income_y.parquet",
+  "20240918-stats_set2_income_m.parquet",
+  "20240918-stats_set2_cont_y.parquet",
+  "20240918-stats_set2_cont_m.parquet",
+  "20240918-stats_set2_count_y.parquet",
+  "20240918-stats_set2_count_m.parquet",
+  "20240918-stats_set2_unique_m.parquet"
+)
+
+# Extraer nombres para las hojas del Excel
+sheet_names <- sub(".*set2_(.*)\\.parquet", "\\1", file_names)
+
+# Crear un nuevo archivo Excel
+excel_file <- createWorkbook()
+
+# Leer cada archivo .parquet y agregarlo como una hoja al Excel
+for (i in seq_along(file_names)) {
+  file_path <- sprintf('%s/parquet/%s', output_folder, file_names[i])
+  results <- open_dataset(file_path) %>% collect()
+  
+  # Agregar hoja al archivo Excel
+  addWorksheet(excel_file, sheetName = sheet_names[i])
+  writeData(excel_file, sheet = sheet_names[i], x = results)
+}
+
+# Guardar el archivo Excel
+saveWorkbook(excel_file, file = file.path(output_folder, "20240918-all_results.xlsx"), overwrite = TRUE)
 
 
 
 
-
-
-
-
+file_step1 <- sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step1.parquet')
+file_step2 <- sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step2.parquet')
+file_step3 <- sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step3.parquet')
 
 
 
