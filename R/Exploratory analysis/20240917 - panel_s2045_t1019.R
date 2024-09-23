@@ -59,7 +59,7 @@ centrar_puntaje <- function(df) {
 
 # MASTER
 master            <- open_dataset(sprintf('%s/%s', project_folder, 'data/master.parquet')) %>%
-  filter(puntaje>=20 & puntaje<=45)
+  filter(puntaje>=20 & puntaje<=45) %>% glimpse()
 # PILA
 PILA_history_file <- sprintf('%s/%s', project_folder, 'data/Data_labor/history_PILA.parquet')  %>% glimpse
 # RIPS
@@ -92,16 +92,16 @@ all_rips          <- open_dataset(RIPS_history_file) %>%
   filter(year>=2010 & year<=2014) %>% glimpse()
 
 # Only for Brayan's code ...........
-all_rips <- all_rips %>% 
-  rename(sexo_rips_origi = sexo_RIPS) %>% 
-  mutate(
-    sexo_RIPS = case_when(
-      sexo_rips_origi == 1 ~ "M",
-      sexo_rips_origi == 0 ~ "F",
-      TRUE ~ NA_character_
-    )
-  ) %>% 
-  select(-sexo_rips_origi)
+#all_rips <- all_rips %>% 
+#  rename(sexo_rips_origi = sexo_RIPS) %>% 
+#  mutate(
+#    sexo_RIPS = case_when(
+#      sexo_rips_origi == 1 ~ "M",
+#      sexo_rips_origi == 0 ~ "F",
+#      TRUE ~ NA_character_
+#    )
+#  ) %>% 
+#  select(-sexo_rips_origi)
 # ..................................
 
 # Unique personabasicaid
@@ -195,13 +195,16 @@ write_parquet(rips_est_balanced, file.path(data_dir, "panel_rips_s2045_t1014.par
 
 # 5. Creating the database (balanced) of PILA-SISBEN ---------------------------
 
+all_pila <- all_pila %>% collect()
+unique_pbid <- unique_pbid %>% collect()
+
 merged_pila <- unique_pbid %>% 
   left_join(all_pila, by="personabasicaid") 
 
 rm(all_pila)
 gc()
 
-merged_pila <- merged_pila %>%
+merged_pila_2 <- merged_pila %>% 
   mutate(
     pila_indep = tipo_cotiz %in% c(3, 16, 41, 42, 2, 59, 57, 66),
     pila_depen = !pila_indep
@@ -229,13 +232,12 @@ merged_pila <- merged_pila %>%
     # Type of contributor
     pila_indep = max(pila_indep, na.rm = TRUE),
     pila_depen = max(pila_depen, na.rm = TRUE)
-  )
+  )  %>% glimpse()
 
-pila_est <- merged_pila %>%
-  mutate(monthly_date = as.Date(monthly_date)) %>% 
-  collect
+pila_est <- merged_pila_2 %>%
+  mutate(monthly_date = as.Date(monthly_date)) 
 
-rm(merged_pila)
+rm(merged_pila, merged_pila_2)
 gc()
 
 # Balanced dataframe with the original
@@ -330,7 +332,7 @@ write_parquet(main_base, file.path(data_dir, "panel_total_sample2045_t1014.parqu
 # 7. Clean memory -----------------------------------------------------------------
 
 rm(list=ls(all=TRUE))
-
+gc()
 # ----
 
 
@@ -424,18 +426,8 @@ all_rips          <- open_dataset(RIPS_history_file) %>%
   ) %>% 
   filter(year>=2015 & year<=2019) %>% glimpse()
 
-# Only for Brayan's code ...........
-all_rips <- all_rips %>% 
-  rename(sexo_rips_origi = sexo_RIPS) %>% 
-  mutate(
-    sexo_RIPS = case_when(
-      sexo_rips_origi == 1 ~ "M",
-      sexo_rips_origi == 0 ~ "F",
-      TRUE ~ NA_character_
-    )
-  ) %>% 
-  select(-sexo_rips_origi)
-# ..................................
+all_rips <- all_rips %>% collect()
+
 
 # Unique personabasicaid
 unique_pbid <- master %>% 
@@ -528,13 +520,16 @@ write_parquet(rips_est_balanced, file.path(data_dir, "panel_rips_s2045_t1519.par
 
 # 5. Creating the database (balanced) of PILA-SISBEN ---------------------------
 
+all_pila <- all_pila %>% collect()
+unique_pbid <- unique_pbid %>% collect()
+
 merged_pila <- unique_pbid %>% 
   left_join(all_pila, by="personabasicaid") 
 
 rm(all_pila)
 gc()
 
-merged_pila <- merged_pila %>%
+merged_pila_2 <- merged_pila %>% 
   mutate(
     pila_indep = tipo_cotiz %in% c(3, 16, 41, 42, 2, 59, 57, 66),
     pila_depen = !pila_indep
@@ -562,13 +557,12 @@ merged_pila <- merged_pila %>%
     # Type of contributor
     pila_indep = max(pila_indep, na.rm = TRUE),
     pila_depen = max(pila_depen, na.rm = TRUE)
-  )
+  )  %>% glimpse()
 
-pila_est <- merged_pila %>%
-  mutate(monthly_date = as.Date(monthly_date)) %>% 
-  collect
+pila_est <- merged_pila_2 %>%
+  mutate(monthly_date = as.Date(monthly_date)) 
 
-rm(merged_pila)
+rm(merged_pila, merged_pila_2)
 gc()
 
 # Balanced dataframe with the original

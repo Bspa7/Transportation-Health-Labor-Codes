@@ -99,7 +99,7 @@ for (i in 1:6) {
 }
 
 
-# Reading results from 18-sep-2024, results with descriptives
+# Reading results from 18-sep-2024, results with descriptives 
 
 # Nombres de los archivos parquet y las hojas que se crearán en el Excel
 file_names <- c(
@@ -133,10 +133,11 @@ saveWorkbook(excel_file, file = file.path(output_folder, "20240918-all_results.x
 
 
 
+# Reading results from 20-sep-2024, results with descriptives
 
-file_step1 <- sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step1.parquet')
-file_step2 <- sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step2.parquet')
-file_step3 <- sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step3.parquet')
+file_step1 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step1.parquet')) %>% collect
+file_step2 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step2.parquet')) %>% collect
+file_step3 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step3.parquet')) %>% collect
 
 
 
