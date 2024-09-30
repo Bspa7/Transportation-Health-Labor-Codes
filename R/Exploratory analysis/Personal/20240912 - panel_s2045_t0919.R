@@ -1,0 +1,354 @@
+# Date of creation: 12-Sep-2024
+# Created by Brayan Pineda
+# Objective: This code creates the main database at monthly level for sample with scores between 20-40 from 2009 to 2019.
+
+
+paquetes <- c("rddensity", "writexl", "arrow", "tidyverse", "haven", "dplyr", "openxlsx", "ggplot2", "rdrobust", "cowplot", "ragg", "R.utils", "rlang", "lubridate", "crayon")
+for (paquete in paquetes) {
+  if (!require(paquete, character.only = TRUE)) {
+    install.packages(paquete)
+    library(paquete, character.only = TRUE)
+  }
+}
+
+#base_dir  <- "//wmedesrv/GAMMA/Christian Posso/_banrep_research/proyectos/project_transport_health"
+#base_dir  <- "D:/Steban Pineda/Documents/DIME/Transportation and health"
+base_dir  <- "Z:/Christian Posso/_banrep_research/proyectos/project_transport_health"
+
+project_folder <- base_dir
+data_dir       <- file.path(base_dir, "data")
+output_folder  <- file.path(base_dir, "outputs")
+figure_folder  <- file.path(output_folder, "figures")
+
+
+# 1. Definitions and functions -------------------------------------------------
+
+# Define a variable to categorize age into group - RIPS
+categorize_age <- function(df) {
+  df <- df %>% 
+    mutate(
+      grupo_edad = case_when(
+        between(edad_RIPS , 18, 26) ~ 1,
+        between(edad_RIPS , 27, 59) ~ 2,
+        edad_RIPS >= 60 ~ 3      
+      )
+    )
+  return(df)
+}
+
+# Define a function to create the running variables centered in zero and treatments
+centrar_puntaje <- function(df) {
+  df <- df %>%
+    mutate(
+      cutoff30 = puntaje - 30.56,
+      cutoff40 = puntaje - 40,
+      treatment1 = ifelse(puntaje <= 30.56, 1, 0),
+      treatment2 = ifelse(puntaje > 30.56 & puntaje <= 40, 1, 0),
+      control1 = ifelse(puntaje > 40, 1, 0)
+    )
+  return(df)
+}
+
+# ----
+
+# 2. Initial databases ---------------------------------------------------------
+
+# Databases: SISBEN
+#all_sisben_bgta <- open_dataset(sprintf('%s/%s', project_folder, 'data/sisben3_bgta_demog.parquet')) %>% glimpse
+# Databases: PERSONABASICAID2010 
+#base_pbid2010   <- open_dataset(sprintf('%s/%s', project_folder, 'data/personabasicaid_pila2010.parquet')) %>% glimpse
+# Databases: MASTER
+master            <- open_dataset(sprintf('%s/%s', project_folder, 'data/master.parquet')) %>% 
+  filter(puntaje>=20 & puntaje<=45) %>%  
+  glimpse
+# Databases: PILA
+PILA_history_file <- sprintf('%s/%s', project_folder, 'data/Data_labor/history_PILA.parquet')  %>% glimpse
+# Databases: RIPS
+RIPS_history_file <- sprintf('%s/%s', project_folder, 'data/Data_health/history_RIPS.parquet') %>% glimpse
+
+# ----
+
+# 3. First modifications to initial databases ----------------------------------
+
+# Modifications to PILA: filter to Bogota into 2015-2019
+all_pila          <- open_dataset(PILA_history_file) %>% 
+  rename(fechanto_pila = fechanto, date_pila = DATE) %>% 
+  filter(depto_cod == 11 & ciudad_cod == 1) %>%
+  mutate(
+    date_pila = as.Date(date_pila),
+    monthly_date = floor_date(date_pila, "month"),
+    year = year(date_pila)
+  ) %>% 
+  filter(year>=2009 & year<=2019) %>% glimpse()
+
+# Modifications to RIPS: filter to Bogota into 2015-2019
+all_rips          <- open_dataset(RIPS_history_file) %>%
+  rename(date_rips = DATE) %>% 
+  filter(COD_DPTO == 11 & COD_MPIO == 1)  %>%
+  mutate(
+    date_rips      = as.Date(date_rips),
+    year           = year(date_rips),
+    monthly_date = floor_date(date_rips, "month"),
+  ) %>% 
+  filter(year>=2009 & year<=2019) %>% glimpse()
+
+# Only for Brayan's code ...........
+all_rips <- all_rips %>% 
+  rename(sexo_rips_origi = sexo_RIPS) %>% 
+  mutate(
+    sexo_RIPS = case_when(
+      sexo_rips_origi == 1 ~ "M",
+      sexo_rips_origi == 0 ~ "F",
+      TRUE ~ NA_character_
+    )
+  ) %>% 
+  select(-sexo_rips_origi)
+# ..................................
+
+# Unique personabasicaid
+unique_pbid <- master %>% 
+  select(personabasicaid) %>% 
+  unique()
+
+aux_pbid <- master %>% 
+  select(personabasicaid) %>% 
+  unique() %>% collect()
+
+# Skeleton with all individuals observed in all periods
+aux_time <- seq(as.Date("2009-01-01"), as.Date("2019-12-01"), by = "month")
+aux_pbid <- unique(aux_pbid$personabasicaid)
+skeleton <- expand.grid(monthly_date = aux_time, personabasicaid = aux_pbid)
+rm(aux_pbid, aux_time)
+
+# ----
+
+# 4. Creating the database (balanced) of RIPS-SISBEN ---------------------------
+merged_rips <- unique_pbid %>% 
+  left_join(all_rips, by="personabasicaid") 
+rm(all_rips)
+gc()
+
+rips_est <- merged_rips %>% 
+  group_by(monthly_date, personabasicaid) %>%  
+  summarise(
+    # Informacion relacionada con conteos y dummies de RIPS en sí mismo  
+    n_visitas_rips = n(),
+    d_visitas_rips = if_else(n() > 0, 1, 0),
+    n_consultas = sum(MODULE == "c", na.rm = TRUE),
+    d_consultas = if_else(sum(MODULE == "c", na.rm = TRUE) > 0, 1, 0),
+    n_hospitalizaciones = sum(MODULE == "h", na.rm = TRUE),
+    d_hospitalizaciones = if_else(sum(MODULE == "h", na.rm = TRUE) > 0, 1, 0),
+    n_procedimientos = sum(MODULE == "p", na.rm = TRUE),
+    d_procedimientos = if_else(sum(MODULE == "p", na.rm = TRUE) > 0, 1, 0),
+    n_urgencias = sum(MODULE == "u", na.rm = TRUE),
+    d_urgencias = if_else(sum(MODULE == "u", na.rm = TRUE) > 0, 1, 0),
+    c_preven = sum(if_else(MODULE == "c" & substr(DIAG_PRIN, 1, 1) == "Z" & substr(DIAG_PRIN, 2, 4) %in% sprintf("%03d", 0:139), 1, 0), na.rm = TRUE),
+    d_preven = if_else(sum(if_else(MODULE == "c" & substr(DIAG_PRIN, 1, 1) == "Z" & substr(DIAG_PRIN, 2, 4) %in% sprintf("%03d", 0:139), 1, 0), na.rm = TRUE) > 0, 1, 0),
+    c_prenat = sum(if_else(MODULE == "c" & substr(DIAG_PRIN, 1, 1) == "Z" & substr(DIAG_PRIN, 2, 4) %in% sprintf("%03d", 300:392), 1, 0), na.rm = TRUE),
+    d_prenat = if_else(sum(if_else(MODULE == "c" & substr(DIAG_PRIN, 1, 1) == "Z" & substr(DIAG_PRIN, 2, 4) %in% sprintf("%03d", 300:392), 1, 0), na.rm = TRUE) > 0, 1, 0),
+  
+    # Agregar las dummies para TIPO_USUARIO (contributivo, subsidiado, otros)
+    reg_contributivo            = if_else(sum(TIPO_USUARIO == 1, na.rm = TRUE) > 0, 1, 0),
+    reg_subsidiado              = if_else(sum(TIPO_USUARIO == 2, na.rm = TRUE) > 0, 1, 0),
+    reg_vinculado               = if_else(sum(TIPO_USUARIO == 3, na.rm = TRUE) > 0, 1, 0),
+    reg_particular              = if_else(sum(TIPO_USUARIO == 4, na.rm = TRUE) > 0, 1, 0),
+    reg_otro                    = if_else(sum(TIPO_USUARIO == 5, na.rm = TRUE) > 0, 1, 0),
+    reg_desp_contributivo       = if_else(sum(TIPO_USUARIO == 6, na.rm = TRUE) > 0, 1, 0),
+    reg_desp_subsidiado         = if_else(sum(TIPO_USUARIO == 7, na.rm = TRUE) > 0, 1, 0),
+    reg_desp_no_asegurado       = if_else(sum(TIPO_USUARIO == 8, na.rm = TRUE) > 0, 1, 0),
+  
+    # Variables para genero
+    rips_gender = if_else(sum(sexo_RIPS == "M", na.rm = TRUE) > 0, 1, 0),
+    rips_female = if_else(sum(sexo_RIPS == "F", na.rm = TRUE) > 0, 1, 0),
+    rips_male   = if_else(sum(sexo_RIPS == "M", na.rm = TRUE) > 0, 1, 0)
+        
+    )
+gc()
+rips_est <- rips_est %>%
+  mutate(monthly_date = as.Date(monthly_date)) %>% 
+  collect
+
+rm(merged_rips)
+gc()
+
+# Balanced dataframe with the original
+rips_est_balanced <- skeleton %>%
+  left_join(rips_est, by = c("monthly_date", "personabasicaid"))
+
+# Cleaning memory
+rm(rips_est)
+gc()
+
+# Replacing NA's to zero in main variables
+rips_est_balanced <- rips_est_balanced %>%
+  mutate(across(c(n_visitas_rips, n_consultas, n_hospitalizaciones,
+                  n_procedimientos, n_urgencias,c_preven, c_prenat,
+                  d_visitas_rips, d_consultas, d_hospitalizaciones,
+                  d_procedimientos, d_urgencias, d_preven, d_prenat,
+                  reg_contributivo, reg_subsidiado, reg_vinculado, 
+                  reg_particular, reg_otro, reg_desp_contributivo, 
+                  reg_desp_subsidiado, reg_desp_no_asegurado),
+                ~ replace_na(., 0)))
+
+write_parquet(rips_est_balanced, file.path(data_dir, "panel_rips_sample2045_t0919.parquet"))
+
+# ----
+
+# 5. Creating the database (balanced) of PILA-SISBEN ---------------------------
+
+#all_pila_c <- all_pila %>% collect
+#unique_pbid <- unique_pbid %>% collect
+#merged_pila <- unique_pbid %>% 
+#  left_join(all_pila_c, by="personabasicaid") 
+#rm(all_pila_c, all_pila)
+#gc()
+
+merged_pila <- unique_pbid %>% 
+  left_join(all_pila, by="personabasicaid") 
+
+rm(all_pila)
+gc()
+
+merged_pila <- merged_pila %>%
+  mutate(
+    pila_indep = tipo_cotiz %in% c(3, 16, 41, 42, 2, 59, 57, 66),
+    pila_depen = !pila_indep
+  ) %>% 
+  group_by(monthly_date, personabasicaid) %>%  
+  summarise(
+    # Numero de registros totales en PILA y dummy de registro por mes
+    n_registros_pila  = n(),
+    d_registros_pila  = if_else(n() > 0, 1, 0),
+    
+    # IBC variables
+    ibc_salud_max     = max(ibc_salud, na.rm = TRUE),
+    ibc_ccf_max       = max(ibc_ccf,   na.rm = TRUE),
+    ibc_pens_max      = max(ibc_pens,  na.rm = TRUE),
+    ibc_rprof_max     = max(ibc_rprof, na.rm = TRUE),
+    
+    # Income 
+    income_base_max  = max(salario_bas,    na.rm = TRUE),
+    income_base_sum  = sum(salario_bas,    na.rm = TRUE),    
+
+    # Number of contributed days
+    sal_dias_cot_max  = max(sal_dias_cot, na.rm = TRUE),    
+    sal_dias_cot_sum  = sum(sal_dias_cot, na.rm = TRUE),    
+    
+    # Type of contributor
+    pila_indep = max(pila_indep, na.rm = TRUE),
+    pila_depen = max(pila_depen, na.rm = TRUE)
+  )
+
+pila_est <- merged_pila %>%
+  mutate(monthly_date = as.Date(monthly_date)) %>% 
+  collect
+
+rm(merged_pila)
+gc()
+
+# Balanced dataframe with the original
+pila_est_balanced <- skeleton %>%
+  left_join(pila_est, by = c("monthly_date", "personabasicaid"))
+
+# Cleaning memory
+rm(pila_est, skeleton)
+gc()
+
+# Replacing NA's to zero in main variables
+pila_est_balanced <- pila_est_balanced %>%
+  mutate(across(c(n_registros_pila, d_registros_pila, ibc_salud_max, ibc_ccf_max, ibc_pens_max, ibc_rprof_max,
+                  income_base_max, income_base_sum, sal_dias_cot_sum, sal_dias_cot_max, pila_indep, pila_depen),
+                ~ replace_na(., 0)))
+write_parquet(pila_est_balanced, file.path(data_dir, "panel_pila_sample2045_t0919.parquet"))
+
+# ----
+
+# 6. Creating the final database (balanced) of SISBEN-PILA-RIPS ----------------
+
+master <- master %>% collect()
+main_base <- rips_est_balanced %>% 
+  left_join(pila_est_balanced, by = c("personabasicaid", "monthly_date")) %>% 
+  left_join(master, by = "personabasicaid") %>% 
+  centrar_puntaje() %>% 
+  mutate(
+    genero    = if_else(sexo == 1, 1, 0),
+    estrato_1 = if_else(estrato == 1, 1, 0),
+    estrato_2 = if_else(estrato == 2, 1, 0),
+    estrato_3 = if_else(estrato == 3, 1, 0),
+    estrato_4 = if_else(estrato == 4, 1, 0),
+    estrato_5 = if_else(estrato == 5, 1, 0),
+    estrato_6 = if_else(estrato == 6, 1, 0),
+    activi_sin = if_else(activi == 0, 1, 0),
+    activi_tra = if_else(activi == 1, 1, 0),
+    activi_bus = if_else(activi == 2, 1, 0),
+    activi_est = if_else(activi == 3, 1, 0),
+    activi_hog = if_else(activi == 4, 1, 0),
+    estcivil_unlibr = if_else(estcivil == 1, 1, 0),
+    estcivil_casado = if_else(estcivil == 2, 1, 0),
+    estcivil_solter = if_else(estcivil == 4, 1, 0),
+    
+    # Calculando la edad por mes y por año
+    date_fechanto  = as.Date(fechanto),
+    year_fechanto  = year(date_fechanto),
+    month_fechanto = floor_date(date_fechanto, "month"),
+    # Edad en cada mes
+    edad_mensual = floor(interval(fechanto, monthly_date) / years(1)),
+    # Edad que cumple en el año
+    year_current = year(monthly_date),
+    edad_anual   = year_current - year_fechanto,        
+    
+    anios_educacion = case_when(
+      # Primaria
+      nivel == 3 & (grado == 0 | is.na(grado)) ~ 0,
+      nivel == 3 & grado == 1 ~ 1,
+      nivel == 3 & grado == 2 ~ 2,
+      nivel == 3 & grado == 3 ~ 3,
+      nivel == 3 & grado == 4 ~ 4,
+      nivel == 3 & grado == 5 ~ 5,
+      
+      # Secundaria
+      nivel == 2 & (grado == 0 | is.na(grado)) ~ 5,
+      nivel == 2 & (grado == 6 | grado == 1) ~ 6,
+      nivel == 2 & (grado == 7 | grado == 2) ~ 7,
+      nivel == 2 & (grado == 8 | grado == 3) ~ 8,
+      nivel == 2 & (grado == 9 | grado == 4) ~ 9,
+      nivel == 2 & (grado == 10 | grado == 5) ~ 10,
+      nivel == 2 & (grado == 11 | grado == 6) ~ 11,
+      
+      # Técnica o tecnología
+      nivel == 3 ~ 12,
+      
+      # Universitaria
+      nivel == 4 ~ 13,
+      
+      # Postgrado
+      nivel == 5 ~ 14,
+      
+      # Valor por defecto
+      TRUE ~ 0
+    )
+  ) 
+
+rm(master, pila_est_balanced, rips_est_balanced, skeleton, unique_pbid)
+gc()
+write_parquet(main_base, file.path(data_dir, "panel_total_sample2045_t0919.parquet"))
+
+# -----
+
+cat(green("---------- PLEASE SEND A PICTURE OF THIS RESULTS: ----------\n"))
+# Calcular y mostrar el número de personas únicas en la base de datos
+num_personas <- main_base %>%
+  summarise(n_personas = n_distinct(personabasicaid)) %>%
+  pull(n_personas)
+cat("Número de personas únicas (personabasicaid):", num_personas, "\n")
+
+
+# Imprimir texto en colores
+hist(main_base$puntaje)
+summary(main_base)
+
+
+rm(list=ls(all=TRUE))
+
+# ----
+

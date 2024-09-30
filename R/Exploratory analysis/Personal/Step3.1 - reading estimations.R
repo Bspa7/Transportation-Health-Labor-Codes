@@ -135,17 +135,51 @@ saveWorkbook(excel_file, file = file.path(output_folder, "20240918-all_results.x
 
 # Reading results from 20-sep-2024, results with descriptives
 
-file_step1 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step1.parquet')) %>% collect
-file_step2 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step2.parquet')) %>% collect
-file_step3 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step3.parquet')) %>% collect
+count_step1 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step1.parquet')) %>% collect
+count_step2 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step2.parquet')) %>% collect
+count_step3 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240919-stats_set3_step3.parquet')) %>% collect
+count_step4 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240923-stats_set4_step1.parquet')) %>% collect
+
+# Crear un nuevo workbook
+wb <- createWorkbook()
+
+# Añadir hojas al workbook con los dataframes correspondientes
+addWorksheet(wb, "Step 1")
+writeData(wb, "Step 1", count_step1)
+
+addWorksheet(wb, "Step 2")
+writeData(wb, "Step 2", count_step2)
+
+addWorksheet(wb, "Step 3")
+writeData(wb, "Step 3", count_step3)
+
+addWorksheet(wb, "Step 4")
+writeData(wb, "Step 4", count_step4)
+
+saveWorkbook(wb, file = sprintf('%s/20240923 - general_counters.xlsx', output_folder), overwrite = TRUE)
 
 
+# Reading results from 24-sep-2024, general info about diagnoses
+
+diag_step1 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240924-diagnoses_CIEV10.parquet')) %>% collect
+diag_step2 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240924-diagnoses_cau_ext.parquet')) %>% collect
+diag_step3 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240924-diagnoses_CUPS.parquet')) %>% collect
+
+# Crear un nuevo workbook
+wb <- createWorkbook()
+
+# Añadir hojas al workbook con los dataframes correspondientes
+addWorksheet(wb, "Diag_CIEV10")
+writeData(wb, "Diag_CIEV10", diag_step1)
+
+addWorksheet(wb, "Diag_cauext")
+writeData(wb, "Diag_cauext", diag_step2)
+
+addWorksheet(wb, "Diag_cups")
+writeData(wb, "Diag_cups", diag_step3)
 
 
-
-
-
-
+saveWorkbook(wb, file = sprintf('%s/20240924 - general_diagnoses.xlsx', output_folder), overwrite = TRUE)
 
 
 
