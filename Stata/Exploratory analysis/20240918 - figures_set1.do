@@ -6,7 +6,8 @@ global graphs_rips "${root}/outputs/figures/Descriptives_RIPS"
 global graphs_pila "${root}/outputs/figures/Descriptives_PILA"
 global aux_db      "${root}/Results_run_banrep/auxiliar_databases"
 
-import excel "${root}/outputs/20240918-descriptives_set1_raw.xlsx", sheet("Dummys_vars") firstrow clear
+*import excel "${root}/outputs/20240918-descriptives_set1_raw.xlsx", sheet("Dummys_vars") firstrow clear
+import excel "${root}/outputs/20240930-descriptives_set2_raw.xlsx", sheet("Dummys_vars") firstrow clear
 	tsset monthly
 	ren *4245* *4045*
 
@@ -22,19 +23,29 @@ import excel "${root}/outputs/20240918-descriptives_set1_raw.xlsx", sheet("Dummy
 	gen n_pila_m1519 = 153972
 
 * Individuals per system and score with at least one register between 2010-2019
-	gen n_rips_m1019_s2025 = 27236
-	gen n_rips_m1019_s2530 = 46659
-	gen n_rips_m1019_s3035 = 31303
-	gen n_rips_m1019_s3540 = 32050
-	gen n_rips_m1019_s4045 = 37626
+*	gen n_rips_m1019_s1520 = 27236	
+*	gen n_rips_m1019_s2025 = 27236	
+*	gen n_rips_m1019_s2530 = 46659
+*	gen n_rips_m1019_s3035 = 31303
+*	gen n_rips_m1019_s3540 = 32050
+*	gen n_rips_m1019_s4045 = 37626
+	gen n_rips_m1019_s1520 = 15731
+	gen n_rips_m1019_s2025 = 28507
+	gen n_rips_m1019_s2530 = 49153
+	gen n_rips_m1019_s3035 = 32803
+	gen n_rips_m1019_s3540 = 33510
+	gen n_rips_m1019_s4045 = 39189
 
-	gen n_pila_m1019_s2025 = 28643
+	* count_step3
+	gen n_pila_m1019_s1520 = 15731	
+	gen n_pila_m1019_s2025 = 28507
 	gen n_pila_m1019_s2530 = 49153
 	gen n_pila_m1019_s3035 = 32803
 	gen n_pila_m1019_s3540 = 33510
 	gen n_pila_m1019_s4045 = 39189
 
 * Individuals per system and score with at least one register between 2015-2019
+*	gen n_rips_m1519_s2025 = 23664
 	gen n_rips_m1519_s2025 = 23664
 	gen n_rips_m1519_s2530 = 40509
 	gen n_rips_m1519_s3035 = 27162
@@ -48,7 +59,7 @@ import excel "${root}/outputs/20240918-descriptives_set1_raw.xlsx", sheet("Dummy
 	gen n_pila_m1519_s4045 = 33042
 
 
-foreach score of numlist  2025 2530 3035 3540 4045 {	
+foreach score of numlist  1520 2025 2530 3035 3540 4045 {	
 dis in red " Working on: `score'"
 
 	gen n_consul_s`score'_t15  = (n_consultas_s`score'/n_rips_m1519_s`score')                 
@@ -114,10 +125,11 @@ global op_s3 "symbol(smcircle)        mcolor(blue%50)  lpattern(vshortdash) lcol
 
 * Average ----------------------------------------------------------------------
 
-twoway (connected n_consul_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
+twoway (connected n_consul_s1520_t15 month if inrange(month, 677, 701), $op_s1 )
+       (connected n_consul_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_consul_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected n_consul_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -133,7 +145,7 @@ twoway (connected n_consul_s2025_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected n_consul_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_consul_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected n_consul_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -151,7 +163,7 @@ twoway (connected n_consul_s3035_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected d_consul_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_consul_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected d_consul_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -167,7 +179,7 @@ twoway (connected d_consul_s2025_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected d_consul_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_consul_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected d_consul_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -189,13 +201,13 @@ twoway (connected d_consul_s3035_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected n_proced_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_proced_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected n_proced_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
 		title("Procedures per capita, by SISBEN score group", size(small)) ///
 		subtitle("{bf:Elegible at a lower discount (<=30.56) vs. Not eligible (>40)}", size(small)) ///
-		xtitle("")  ytitle("No. of consultations", size(small)) ///
+		xtitle("")  ytitle("No. of procedures", size(small)) ///
 		legend(label(1 "Score 20-25")) ///
 		legend(label(2 "Score 25-30.56")) ///
 		legend(label(3 "Score 40-45")) ///		
@@ -205,13 +217,13 @@ twoway (connected n_proced_s2025_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected n_proced_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_proced_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected n_proced_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
 		title("Procedures per capita, by SISBEN score group", size(small)) ///
 		subtitle("{bf:Lost eligibility (30.56-40] vs. Not eligible (>40) }", size(small)) ///
-		xtitle("")  ytitle("No. of consultations", size(small)) ///
+		xtitle("")  ytitle("No. of procedures", size(small)) ///
 		legend(label(1 "Score 30.56-35")) ///
 		legend(label(2 "Score 35-40")) ///
 		legend(label(3 "Score 40-45")) ///		
@@ -223,7 +235,7 @@ twoway (connected n_proced_s3035_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected d_proced_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_proced_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected d_proced_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -239,7 +251,7 @@ twoway (connected d_proced_s2025_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected d_proced_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_proced_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected d_proced_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -260,13 +272,14 @@ twoway (connected d_proced_s3035_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected n_emerg_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_emerg_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected n_emerg_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
-        ylabel(#10, labsize(small) format(%9.2fc)) ///
+        ylabel(#10, labsize(small) format(%9.3fc)) ///
+		ylabel(0(0.01)0.05) ///
         legend(position(6)  col(5)) ///
 		title("Emergencies per capita, by SISBEN score group", size(small)) ///
 		subtitle("{bf:Elegible at a lower discount (<=30.56) vs. Not eligible (>40)}", size(small)) ///
-		xtitle("")  ytitle("No. of consultations", size(small)) ///
+		xtitle("")  ytitle("No. of emergencies", size(small)) ///
 		legend(label(1 "Score 20-25")) ///
 		legend(label(2 "Score 25-30.56")) ///
 		legend(label(3 "Score 40-45")) ///		
@@ -276,13 +289,14 @@ twoway (connected n_emerg_s2025_t15 month if inrange(month, 677, 701), $op_s1 ) 
 twoway (connected n_emerg_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_emerg_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected n_emerg_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
-        ylabel(#10, labsize(small) format(%9.2fc)) ///
+        ylabel(#10, labsize(small) format(%9.3fc)) ///
+		ylabel(0(0.01)0.05) ///
         legend(position(6)  col(5)) ///
 		title("Emergencies per capita, by SISBEN score group", size(small)) ///
 		subtitle("{bf:Lost eligibility (30.56-40] vs. Not eligible (>40) }", size(small)) ///
-		xtitle("")  ytitle("No. of consultations", size(small)) ///
+		xtitle("")  ytitle("No. of emergencies", size(small)) ///
 		legend(label(1 "Score 30.56-35")) ///
 		legend(label(2 "Score 35-40")) ///
 		legend(label(3 "Score 40-45")) ///		
@@ -294,9 +308,10 @@ twoway (connected n_emerg_s3035_t15 month if inrange(month, 677, 701), $op_s1 ) 
 twoway (connected d_emerg_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_emerg_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected d_emerg_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
-        ylabel(#10, labsize(small) format(%9.2fc)) ///
+        ylabel(#10, labsize(small) format(%9.3fc)) ///
+		ylabel(0(0.01)0.05) ///
         legend(position(6)  col(5)) ///
 		title("Percentage of people with at least one emergency, by SISBEN score group", size(small)) ///
 		subtitle("{bf:Elegible at a lower discount (<=30.56) vs. Not eligible (>40)}", size(small)) ///
@@ -310,9 +325,10 @@ twoway (connected d_emerg_s2025_t15 month if inrange(month, 677, 701), $op_s1 ) 
 twoway (connected d_emerg_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_emerg_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected d_emerg_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
-        ylabel(#10, labsize(small) format(%9.2fc)) ///
+        ylabel(#10, labsize(small) format(%9.3fc)) ///
+		ylabel(0(0.01)0.05) ///		
         legend(position(6)  col(5)) ///
 		title("Percentage of people with at least one emergency, by SISBEN score group", size(small)) ///
 		subtitle("{bf:Lost eligibility (30.56-40] vs. Not eligible (>40) }", size(small)) ///
@@ -332,13 +348,14 @@ twoway (connected d_emerg_s3035_t15 month if inrange(month, 677, 701), $op_s1 ) 
 twoway (connected n_hosp_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_hosp_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected n_hosp_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
-        ylabel(#10, labsize(small) format(%9.2fc)) ///
+        ylabel(#10, labsize(small) format(%9.3fc)) ///
+		ylabel(0(0.001)0.01) ///
         legend(position(6)  col(5)) ///
 		title("Hospitalizations per capita, by SISBEN score group", size(small)) ///
 		subtitle("{bf:Elegible at a lower discount (<=30.56) vs. Not eligible (>40)}", size(small)) ///
-		xtitle("")  ytitle("No. of consultations", size(small)) ///
+		xtitle("")  ytitle("No. of hospitalizations", size(small)) ///
 		legend(label(1 "Score 20-25")) ///
 		legend(label(2 "Score 25-30.56")) ///
 		legend(label(3 "Score 40-45")) ///		
@@ -348,13 +365,14 @@ twoway (connected n_hosp_s2025_t15 month if inrange(month, 677, 701), $op_s1 )  
 twoway (connected n_hosp_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_hosp_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected n_hosp_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
-        ylabel(#10, labsize(small) format(%9.2fc)) ///
+        ylabel(#10, labsize(small) format(%9.3fc)) ///
+		ylabel(0(0.001)0.01) ///
         legend(position(6)  col(5)) ///
 		title("Hospitalizations per capita, by SISBEN score group", size(small)) ///
 		subtitle("{bf:Lost eligibility (30.56-40] vs. Not eligible (>40) }", size(small)) ///
-		xtitle("")  ytitle("No. of consultations", size(small)) ///
+		xtitle("")  ytitle("No. of hospitalizations", size(small)) ///
 		legend(label(1 "Score 30.56-35")) ///
 		legend(label(2 "Score 35-40")) ///
 		legend(label(3 "Score 40-45")) ///		
@@ -366,9 +384,10 @@ twoway (connected n_hosp_s3035_t15 month if inrange(month, 677, 701), $op_s1 )  
 twoway (connected d_hosp_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_hosp_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected d_hosp_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
-        ylabel(#10, labsize(small) format(%9.2fc)) ///
+        ylabel(#10, labsize(small) format(%9.3fc)) ///
+		ylabel(0(0.001)0.01) ///
         legend(position(6)  col(5)) ///
 		title("Percentage of people with at least one hospitalization, by SISBEN score group", size(small)) ///
 		subtitle("{bf:Elegible at a lower discount (<=30.56) vs. Not eligible (>40)}", size(small)) ///
@@ -382,9 +401,10 @@ twoway (connected d_hosp_s2025_t15 month if inrange(month, 677, 701), $op_s1 )  
 twoway (connected d_hosp_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_hosp_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected d_hosp_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
-        ylabel(#10, labsize(small) format(%9.2fc)) ///
+        ylabel(#10, labsize(small) format(%9.3fc)) ///
+		ylabel(0(0.001)0.01) ///
         legend(position(6)  col(5)) ///
 		title("Percentage of people with at least one hospitalization, by SISBEN score group", size(small)) ///
 		subtitle("{bf:Lost eligibility (30.56-40] vs. Not eligible (>40) }", size(small)) ///
@@ -396,6 +416,21 @@ twoway (connected d_hosp_s3035_t15 month if inrange(month, 677, 701), $op_s1 )  
 	   graph export "${figures}/20240925_d_hospitalizations_g2.png", replace	
 		
 				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 		
 ************************* PREVENTIVE CONSULTATIONS *****************************
 
@@ -404,7 +439,7 @@ twoway (connected d_hosp_s3035_t15 month if inrange(month, 677, 701), $op_s1 )  
 twoway (connected n_preven_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_preven_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected n_preven_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -420,7 +455,7 @@ twoway (connected n_preven_s2025_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected n_preven_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_preven_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected n_preven_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -438,7 +473,7 @@ twoway (connected n_preven_s3035_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected d_preven_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_preven_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected d_preven_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -454,7 +489,7 @@ twoway (connected d_preven_s2025_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected d_preven_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_preven_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected d_preven_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -476,7 +511,7 @@ twoway (connected d_preven_s3035_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected n_prenat_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_prenat_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected n_prenat_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -492,7 +527,7 @@ twoway (connected n_prenat_s2025_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected n_prenat_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected n_prenat_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected n_prenat_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -510,7 +545,7 @@ twoway (connected n_prenat_s3035_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected d_prenat_s2025_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_prenat_s2530_t15 month if inrange(month, 677, 701), $op_s2 )   ///   
        (connected d_prenat_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///
@@ -526,7 +561,7 @@ twoway (connected d_prenat_s2025_t15 month if inrange(month, 677, 701), $op_s1 )
 twoway (connected d_prenat_s3035_t15 month if inrange(month, 677, 701), $op_s1 )   ///		
        (connected d_prenat_s3540_t15 month if inrange(month, 677, 701), $op_s2 )   ///  
        (connected d_prenat_s4045_t15 month if inrange(month, 677, 701), $op_s3 ),  /// 
-		xline(687, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
+		xline(686, lpattern(dash_dot) lwidth(vthin) lcolor(black))  ///
         xlabel(#24, labsize(vsmall) grid angle(90)) ///
         ylabel(#10, labsize(small) format(%9.2fc)) ///
         legend(position(6)  col(5)) ///

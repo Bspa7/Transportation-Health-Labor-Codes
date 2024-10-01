@@ -183,6 +183,76 @@ saveWorkbook(wb, file = sprintf('%s/20240924 - general_diagnoses.xlsx', output_f
 
 
 
+# Reading results from 30-sep-2024, results with descriptives
+
+count_step1 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-stats_set5_step1.parquet')) %>% collect
+count_step2 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-stats_set5_step2.parquet')) %>% collect
+count_step3 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-stats_set5_step3.parquet')) %>% collect
+count_step4 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-stats_set5_step4.parquet')) %>% collect
+count_step5 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-stats_set5_step5.parquet')) %>% collect
+count_step6 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-stats_set5_step6.parquet')) %>% collect
+
+# Crear un nuevo workbook
+wb <- createWorkbook()
+
+# Añadir hojas al workbook con los dataframes correspondientes
+addWorksheet(wb, "Step 1")
+writeData(wb, "Step 1", count_step1)
+
+addWorksheet(wb, "Step 2")
+writeData(wb, "Step 2", count_step2)
+
+addWorksheet(wb, "Step 3")
+writeData(wb, "Step 3", count_step3)
+
+addWorksheet(wb, "Step 4")
+writeData(wb, "Step 4", count_step4)
+
+addWorksheet(wb, "Step 5")
+writeData(wb, "Step 5", count_step5)
+
+addWorksheet(wb, "Step 6")
+writeData(wb, "Step 6", count_step6)
+
+
+saveWorkbook(wb, file = sprintf('%s/20240930 - general_counters.xlsx', output_folder), overwrite = TRUE)
+
+
+# Nombres de los archivos parquet y las hojas que se crearán en el Excel
+file_names <- c(
+  "20240930-stats_set5_income_y.parquet",
+  "20240930-stats_set5_income_m.parquet",
+  "20240930-stats_set5_cont_y.parquet",
+  "20240930-stats_set5_cont_m.parquet",
+  "20240930-stats_set5_count_y.parquet",
+  "20240930-stats_set5_count_m.parquet",
+  "20240930-stats_set5_unique_m.parquet"
+)
+
+# Extraer nombres para las hojas del Excel
+sheet_names <- sub(".*set5_(.*)\\.parquet", "\\1", file_names)
+
+# Crear un nuevo archivo Excel
+excel_file <- createWorkbook()
+
+# Leer cada archivo .parquet y agregarlo como una hoja al Excel
+for (i in seq_along(file_names)) {
+  file_path <- sprintf('%s/parquet/%s', output_folder, file_names[i])
+  results <- open_dataset(file_path) %>% collect()
+  
+  # Agregar hoja al archivo Excel
+  addWorksheet(excel_file, sheetName = sheet_names[i])
+  writeData(excel_file, sheet = sheet_names[i], x = results)
+}
+
+# Guardar el archivo Excel
+saveWorkbook(excel_file, file = file.path(output_folder, "20240930-all_results.xlsx"), overwrite = TRUE)
+
+
+
+
+
+
 
 
 
