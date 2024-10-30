@@ -25,10 +25,10 @@ Definition of treatments and control
 
 */		
 
-*global root "//wmedesrv/GAMMA/Christian Posso/_banrep_research/proyectos/project_transport_health"
+global root "//wmedesrv/GAMMA/Christian Posso/_banrep_research/proyectos/project_transport_health"
 *global root "Z:/Christian Posso/_banrep_research/proyectos/project_transport_health"
 *global root "D:/Steban Pineda/Documents/DIME/Transportation and health"
-global  root "/Users/brayanpineda/Library/CloudStorage/OneDrive-Personal/Trabajo/2024_DIME/COL Health and Public Transport"
+*global  root "/Users/brayanpineda/Library/CloudStorage/OneDrive-Personal/Trabajo/2024_DIME/COL Health and Public Transport"
 
 
 global data        "${root}/data"
@@ -181,23 +181,25 @@ est store est_n_consultas
 
 coefplot ///
  (est_n_consultas, ///
- rename(interaction_t1 = "Jan-2017" & interaction_t2 = "Feb-2017" & interaction_t3 = "Mar-2017" & ///
-        interaction_t4 = "Apr-2017" & interaction_t5 = "May-2017" & interaction_t6 = "Jun-2017" & ///
-		interaction_t7 = "Jul-2017" & interaction_t8 = "Aug-2017" & interaction_t9 = "Sep-2017" )) , ///
+ rename(interaction_t1 = "Jan-17" & interaction_t2 = "Feb-17" & interaction_t3 = "Mar-17" & ///
+        interaction_t4 = "Apr-17" & interaction_t5 = "May-17" & interaction_t6 = "Jun-17" & ///
+		interaction_t7 = "Jul-17" & interaction_t8 = "Aug-17" & interaction_t9 = "Sep-17" )) , ///
 			drop(_cons treatment_1 post_law*) ///
-		title("{bf:Consultations}", size(small)) ///
-		subtitle("", size(small)) ///
+		title("Impact on Consultations per capita", size(small)) ///
+		subtitle("{bf:Elegible at a lower discount (<=30.56) vs. Not eligible (40-45]}", size(small)) ///
 		levels(95) vertical nolabels msize(large) ///
 		msymbol(diamond) msize(small) mcolor(ebblue) mlwidth(vvvthin) ///
 		graphr(c(white)m(t+0 l+0)) bgcolor(white) plotregion(margin(b=0)) ///
 		ciopts(recast(rcap rcap) lwidth(medium) lcolor(ebblue) fcolor(gs10)) ///
 		yline(0, lpattern(dash) lcolor(gray%50)) nokey ///
-		ylabel(#5, labsize(small) format(%9.3fc)) ///
-		xlabel(, labsize(small) grid angle(0)) ///
+		xline(3, lpattern(dash) lcolor(red)) ///		
+		ylabel(#7, labsize(small) format(%9.3fc)) ///
+		xlabel(, labsize(small) grid angle(45)) ///
 		ytitle("Estimated Coefficient", size(small)) ///
-		xtitle("Months Respecto to the Policy Change", size(small) height(4.5)) ///
-		note("") name("n_cons", replace)
-
+		xtitle("Months After the Policy Change", size(small) height(4.5)) ///
+		note("") ///
+		name("n_cons_t1", replace)
+graph export "${graphs}/20241030 - placebo_t1_n_consultations.png", replace		
 
 		
 * Probability ------------------------------------------------------------------
@@ -208,25 +210,27 @@ est store est_d_consultas
 
 coefplot ///
  (est_d_consultas, ///
- rename(interaction_t1 = "Jan-2017" & interaction_t2 = "Feb-2017" & interaction_t3 = "Mar-2017" & ///
-        interaction_t4 = "Apr-2017" & interaction_t5 = "May-2017" & interaction_t6 = "Jun-2017" & ///
-		interaction_t7 = "Jul-2017" & interaction_t8 = "Aug-2017" & interaction_t9 = "Sep-2017" )) , ///
+ rename(interaction_t1 = "Jan-17" & interaction_t2 = "Feb-17" & interaction_t3 = "Mar-17" & ///
+        interaction_t4 = "Apr-17" & interaction_t5 = "May-17" & interaction_t6 = "Jun-17" & ///
+		interaction_t7 = "Jul-17" & interaction_t8 = "Aug-17" & interaction_t9 = "Sep-17" )) , ///
 			drop(_cons treatment_1 post_law*) ///
-		title("{bf:Consultations}", size(small)) ///
-		subtitle("", size(small)) ///
+		title("Impact on Consultations Probability", size(small)) ///
+		subtitle("{bf:Elegible at a lower discount (<=30.56) vs. Not eligible (40-45]}", size(small)) ///
 		levels(95) vertical nolabels msize(large) ///
 		msymbol(diamond) msize(small) mcolor(ebblue) mlwidth(vvvthin) ///
 		graphr(c(white)m(t+0 l+0)) bgcolor(white) plotregion(margin(b=0)) ///
 		ciopts(recast(rcap rcap) lwidth(medium) lcolor(ebblue) fcolor(gs10)) ///
 		yline(0, lpattern(dash) lcolor(gray%50)) nokey ///
-		ylabel(#5, labsize(small) format(%9.3fc)) ///
-		xlabel(, labsize(small) grid angle(0)) ///
+		xline(3, lpattern(dash) lcolor(red)) ///		
+		ylabel(#7, labsize(small) format(%9.3fc)) ///
+		xlabel(, labsize(small) grid angle(45)) ///
 		ytitle("Estimated Coefficient", size(small)) ///
 		xtitle("Months After the Policy Change", size(small) height(4.5)) ///
-		note("") name("d_cons", replace)
+		note("") ///
+		name("d_cons_t1", replace)
+graph export "${graphs}/20241030 - placebo_t1_d_consultations.png", replace		
 
 
-graph drop *	
 
 ********************************************************************************
 **# ***************** ESTIMATIONS TREATMENT 2 **********************************
@@ -314,23 +318,25 @@ est store est_n_consultas
 
 coefplot ///
  (est_n_consultas, ///
- rename(interaction2_t1 = "Jan-2017" & interaction2_t2 = "Feb-2017" & interaction2_t3 = "Mar-2017" & ///
-        interaction2_t4 = "Apr-2017" & interaction2_t5 = "May-2017" & interaction2_t6 = "Jun-2017" & ///
-		interaction2_t7 = "Jul-2017" & interaction2_t8 = "Aug-2017" & interaction2_t9 = "Sep-2017" )) , ///
+ rename(interaction2_t1 = "Jan-17" & interaction2_t2 = "Feb-17" & interaction2_t3 = "Mar-17" & ///
+        interaction2_t4 = "Apr-17" & interaction2_t5 = "May-17" & interaction2_t6 = "Jun-17" & ///
+		interaction2_t7 = "Jul-17" & interaction2_t8 = "Aug-17" & interaction2_t9 = "Sep-17" )) , ///
 			drop(_cons treatment_2 post_law*) ///
-		title("{bf:Consultations}", size(small)) ///
-		subtitle("", size(small)) ///
+		title("Impact on Consultations per capita", size(small)) ///
+		subtitle("{bf:Lost eligibility (30.56 - 40] vs. Not eligible (40-45]}", size(small)) ///
 		levels(95) vertical nolabels msize(large) ///
 		msymbol(diamond) msize(small) mcolor(ebblue) mlwidth(vvvthin) ///
 		graphr(c(white)m(t+0 l+0)) bgcolor(white) plotregion(margin(b=0)) ///
 		ciopts(recast(rcap rcap) lwidth(medium) lcolor(ebblue) fcolor(gs10)) ///
 		yline(0, lpattern(dash) lcolor(gray%50)) nokey ///
-		ylabel(#5, labsize(small) format(%9.3fc)) ///
-		xlabel(, labsize(small) grid angle(0)) ///
+		xline(3, lpattern(dash) lcolor(red)) ///		
+		ylabel(#7, labsize(small) format(%9.3fc)) ///
+		xlabel(, labsize(small) grid angle(45)) ///
 		ytitle("Estimated Coefficient", size(small)) ///
 		xtitle("Months After the Policy Change", size(small) height(4.5)) ///
-		note("") name("n_cons_t2", replace)
-
+		note("") ///
+		name("n_cons_t2", replace)
+graph export "${graphs}/20241030 - placebo_t2_n_consultations.png", replace		
 
 * Probability ------------------------------------------------------------------
 * d_consultas
@@ -340,39 +346,96 @@ est store est_d_consultas
 
 coefplot ///
  (est_d_consultas, ///
- rename(interaction2_t1 = "Jan-2017" & interaction2_t2 = "Feb-2017" & interaction2_t3 = "Mar-2017" & ///
-        interaction2_t4 = "Apr-2017" & interaction2_t5 = "May-2017" & interaction2_t6 = "Jun-2017" & ///
-		interaction2_t7 = "Jul-2017" & interaction2_t8 = "Aug-2017" & interaction2_t9 = "Sep-2017" )) , ///
+ rename(interaction2_t1 = "Jan-17" & interaction2_t2 = "Feb-17" & interaction2_t3 = "Mar-17" & ///
+        interaction2_t4 = "Apr-17" & interaction2_t5 = "May-17" & interaction2_t6 = "Jun-17" & ///
+		interaction2_t7 = "Jul-17" & interaction2_t8 = "Aug-17" & interaction2_t9 = "Sep-17" )) , ///
 			drop(_cons treatment_2 post_law*) ///
-		title("{bf:Consultations}", size(small)) ///
-		subtitle("", size(small)) ///
+		title("Impact on Consultations Probability", size(small)) ///
+		subtitle("{bf:Lost eligibility (30.56 - 40] vs. Not eligible (40-45]}", size(small)) ///
 		levels(95) vertical nolabels msize(large) ///
 		msymbol(diamond) msize(small) mcolor(ebblue) mlwidth(vvvthin) ///
 		graphr(c(white)m(t+0 l+0)) bgcolor(white) plotregion(margin(b=0)) ///
 		ciopts(recast(rcap rcap) lwidth(medium) lcolor(ebblue) fcolor(gs10)) ///
 		yline(0, lpattern(dash) lcolor(gray%50)) nokey ///
-		ylabel(#5, labsize(small) format(%9.3fc)) ///
-		xlabel(, labsize(small) grid angle(0)) ///
+		xline(3, lpattern(dash) lcolor(red)) ///
+		ylabel(#7, labsize(small) format(%9.3fc)) ///
+		xlabel(, labsize(small) grid angle(45)) ///
 		ytitle("Estimated Coefficient", size(small)) ///
 		xtitle("Months After the Policy Change", size(small) height(4.5)) ///
-		note("Significance level: 5%") name("d_cons_t2", replace)
-
-		graph drop *	
-
-
+		note("") ///
+		name("d_cons_t2", replace)
+graph export "${graphs}/20241030 - placebo_t2_d_consultations.png", replace		
 
 
 
+graph combine  d_cons_t1  n_cons_t2  d_cons_t1 n_cons_t2, ycommon ///
+		graphr(c(white)m(t+0 l+0)) plotregion(margin(b=0)) ///
+		note("Placebo period includes 3 months, with an assumed policy start in Jan 2017." "Significance level: 5%") ///
+		name("fig1", replace)
+graph export "${graphs}/20241030 - placebo_t1t2.png", replace		
+
+		
+	
+capture program drop compress_folder
+program define compress_folder
+    // Argumentos: path principal y nombre de la carpeta a comprimir
+    args main_path subfolder_name
+
+    // Cambiar al directorio principal
+    cd "`main_path'"
+
+    // Verificar si la subcarpeta tiene archivos usando dir
+    capture dir "`subfolder_name'"
+
+    if _rc == 0 {
+        // Si hay archivos en la carpeta, crear el zip
+        local zip_name = "`subfolder_name'.zip"
+        zipfile "`subfolder_name'", saving("`zip_name'", replace)
+        di in red "Archivo comprimido creado: `zip_name' en `main_path'"
+     else {
+        di in red "`subfolder_name' está vacío o no se puede leer en `main_path'"
+    }
+	}
+end
 
 
 
+global outputs "/Users/brayanpineda/Library/CloudStorage/OneDrive-Personal/Trabajo/2024_DIME/COL Health and Public Transport/outputs"
 
+// Comprimir la carpeta de "figures"
+compress_folder "${outputs}/figures/" "20241030 - g_results"
 
+// Comprimir la carpeta de "tables"
+compress_folder "${outputs}/tables/" "20241030 - t_results"
 
-
-
-
-
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
 
 
