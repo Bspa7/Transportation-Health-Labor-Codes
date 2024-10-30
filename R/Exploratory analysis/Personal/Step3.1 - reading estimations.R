@@ -7,7 +7,8 @@ for (paquete in paquetes) {
 }
 
 # Directory and creating a new folder to save all the results
-base_dir  <- "D:/Steban Pineda/Documents/DIME/Transportation and health"
+base_dir  <- "/Users/brayanpineda/Library/CloudStorage/OneDrive-Personal/Trabajo/2024_DIME/COL Health and Public Transport"
+#base_dir  <- "D:/Steban Pineda/Documents/DIME/Transportation and health"
 project_folder <- base_dir
 data_dir       <- file.path(base_dir, "data")
 output_folder  <- file.path(base_dir, "outputs")
@@ -191,6 +192,7 @@ count_step3 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-st
 count_step4 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-stats_set5_step4.parquet')) %>% collect
 count_step5 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-stats_set5_step5.parquet')) %>% collect
 count_step6 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-stats_set5_step6.parquet')) %>% collect
+count_step7 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20240930-stats_set5_step7.parquet')) %>% collect
 
 # Crear un nuevo workbook
 wb <- createWorkbook()
@@ -214,6 +216,8 @@ writeData(wb, "Step 5", count_step5)
 addWorksheet(wb, "Step 6")
 writeData(wb, "Step 6", count_step6)
 
+addWorksheet(wb, "Step 7")
+writeData(wb, "Step 7", count_step7)
 
 saveWorkbook(wb, file = sprintf('%s/20240930 - general_counters.xlsx', output_folder), overwrite = TRUE)
 
@@ -250,6 +254,69 @@ saveWorkbook(excel_file, file = file.path(output_folder, "20240930-all_results.x
 
 
 
+# Reading results from 18-Oct-2024, general info about diagnoses in the four modules in RIPS
+
+diag_c_step1 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_c_CIEV10.parquet')) %>% collect
+diag_c_step2 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_c_cau_ext.parquet')) %>% collect
+diag_c_step3 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_c_CUPS.parquet')) %>% collect
+
+diag_p_step1 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_p_CIEV10.parquet')) %>% collect
+diag_p_step2 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_p_cau_ext.parquet')) %>% collect
+diag_p_step3 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_p_CUPS.parquet')) %>% collect
+
+diag_h_step1 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_h_CIEV10.parquet')) %>% collect
+diag_h_step2 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_h_cau_ext.parquet')) %>% collect
+diag_h_step3 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_h_CUPS.parquet')) %>% collect
+
+diag_u_step1 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_u_CIEV10.parquet')) %>% collect
+diag_u_step2 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_u_cau_ext.parquet')) %>% collect
+diag_u_step3 <- open_dataset(sprintf('%s/%s', output_folder, 'parquet/20241018-diagnoses_u_CUPS.parquet')) %>% collect
+
+# Crear un nuevo workbook
+wb <- createWorkbook()
+
+# Consultations sheets in the excel file
+addWorksheet(wb, "consultations_Diag_CIEV10")
+writeData(wb, "consultations_Diag_CIEV10", diag_c_step1)
+
+addWorksheet(wb, "consultations_Diag_cauext")
+writeData(wb, "consultations_Diag_cauext", diag_c_step2)
+
+addWorksheet(wb, "consultations_Diag_cups")
+writeData(wb, "consultations_Diag_cups", diag_c_step3)
+
+# Procedures sheets in the excel file
+addWorksheet(wb, "procedures_Diag_CIEV10")
+writeData(wb, "procedures_Diag_CIEV10", diag_p_step1)
+
+addWorksheet(wb, "procedures_Diag_cauext")
+writeData(wb, "procedures_Diag_cauext", diag_p_step2)
+
+addWorksheet(wb, "procedures_Diag_cups")
+writeData(wb, "procedures_Diag_cups", diag_p_step3)
+
+# Hospitalization sheets in the excel file
+addWorksheet(wb, "hospit_Diag_CIEV10")
+writeData(wb, "hospit_Diag_CIEV10", diag_h_step1)
+
+addWorksheet(wb, "hospit_Diag_cauext")
+writeData(wb, "hospit_Diag_cauext", diag_h_step2)
+
+addWorksheet(wb, "hospit_Diag_cups")
+writeData(wb, "hospit_Diag_cups", diag_h_step3)
+
+# Emergencies sheets in the excel file
+addWorksheet(wb, "emergency_Diag_CIEV10")
+writeData(wb, "emergency_Diag_CIEV10", diag_u_step1)
+
+addWorksheet(wb, "emergency_Diag_cauext")
+writeData(wb, "emergency_Diag_cauext", diag_u_step2)
+
+addWorksheet(wb, "emergency_Diag_cups")
+writeData(wb, "emergency_Diag_cups", diag_u_step3)
+
+
+saveWorkbook(wb, file = sprintf('%s/20241018 - general_diagnoses.xlsx', output_folder), overwrite = TRUE)
 
 
 

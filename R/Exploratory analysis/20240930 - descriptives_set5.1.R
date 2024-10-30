@@ -22,7 +22,10 @@ figure_folder  <- file.path(output_folder, "figures")
 
 # Initial databases ---------------------------------------------------------
 
-main_base     <- open_dataset(sprintf('%s/%s', data_dir, "panel_total_sample1045_t1019.parquet")) %>% collect()
+main_base     <- open_dataset(sprintf('%s/%s', data_dir, "panel_total_sample1045_t1019.parquet")) %>% 
+  filter(puntaje>=15 & puntaje<=45) %>% 
+  collect()
+
 entire_sample <- open_dataset(sprintf('%s/%s', data_dir, "base_pila_rips_pbid_monthly.parquet")) %>% collect()
 
 # ----
@@ -67,7 +70,7 @@ main_pila_or_rips_1019 <- main_base %>%
 crear_grupos_puntaje <- function(df) {
   df %>%
     mutate(
-           score_1015 = if_else(puntaje>10    & puntaje<=15, 1, 0),      
+#           score_1015 = if_else(puntaje>10    & puntaje<=15, 1, 0),      
            score_1520 = if_else(puntaje>15    & puntaje<=20, 1, 0),
            score_2025 = if_else(puntaje>20    & puntaje<=25, 1, 0),
            score_2530 = if_else(puntaje>25    & puntaje<=30.56, 1, 0),
@@ -89,7 +92,7 @@ resumir_personas <- function(df) {
   df %>%
     summarise(
       total_personas = n_distinct(personabasicaid),  # Total de personas
-      personas_1015 = sum(score_1015),               # Personas con puntaje entre 10 y 15      
+#      personas_1015 = sum(score_1015),               # Personas con puntaje entre 10 y 15      
       personas_1520 = sum(score_1520),               # Personas con puntaje entre 15 y 20
       personas_2025 = sum(score_2025),               # Personas con puntaje entre 20 y 25
       personas_2530 = sum(score_2530),               # Personas con puntaje entre 25 y 30.56

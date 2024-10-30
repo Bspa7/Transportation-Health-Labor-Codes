@@ -1,5 +1,7 @@
-# Date of creation: 30-Sep-2024
+# Date of creation: 30-Sept-2024
 # Created by Brayan Pineda
+# Last modification: 27-Oct-2024 by Brayan Pineda
+# Last modification: Create new outcomes disaggregating consultations into 4 sub outcomes.
 # Objective: This code creates the main database at monthly level for sample with scores between 10-45 from 2010 to 2019.
 
 ################################################################################
@@ -7,7 +9,7 @@
 ################################################################################
 
 # Packages and folders ---------------------------------------------------------
-paquetes <- c("rddensity", "writexl", "arrow", "tidyverse", "haven", "dplyr", "openxlsx", "ggplot2", "rdrobust", "cowplot", "ragg", "R.utils", "rlang", "lubridate", "crayon")
+paquetes <- c("rddensity", "readxl", "writexl", "arrow", "tidyverse", "haven", "dplyr", "openxlsx", "ggplot2", "rdrobust", "cowplot", "ragg", "R.utils", "rlang", "lubridate", "crayon")
 for (paquete in paquetes) {
   if (!require(paquete, character.only = TRUE)) {
     install.packages(paquete)
@@ -18,11 +20,13 @@ for (paquete in paquetes) {
 #base_dir  <- "//wmedesrv/GAMMA/Christian Posso/_banrep_research/proyectos/project_transport_health"
 #base_dir  <- "D:/Steban Pineda/Documents/DIME/Transportation and health"
 base_dir  <- "Z:/Christian Posso/_banrep_research/proyectos/project_transport_health"
+#base_dir  <- "/Users/brayanpineda/Library/CloudStorage/OneDrive-Personal/Trabajo/2024_DIME/COL Health and Public Transport"
 
 project_folder <- base_dir
 data_dir       <- file.path(base_dir, "data")
 output_folder  <- file.path(base_dir, "outputs")
 figure_folder  <- file.path(output_folder, "figures")
+
 # ----
 
 # 1. Definitions and functions -------------------------------------------------
@@ -63,7 +67,16 @@ master            <- open_dataset(sprintf('%s/%s', project_folder, 'data/master.
 # PILA
 PILA_history_file <- sprintf('%s/%s', project_folder, 'data/Data_labor/history_PILA.parquet')  %>% glimpse
 # RIPS
-RIPS_history_file <- sprintf('%s/%s', project_folder, 'data/Data_health/history_RIPS.parquet') %>% glimpse
+RIPS_history_file <- sprintf('%s/%s', project_folder, 'data/Data_health/history_RIPS.parquet') %>% glimpse 
+
+# Opening the reference table of CUPS codes
+# Define path to read the reference file for CUPS codes
+excel_file <- file.path(data_dir, "Data_health/20240924 - general_diagnoses.xlsx")
+# Read the reference table of CUPS codes
+ministry_CUPS_data <- read_excel(excel_file, sheet = "ministry_CUPS_reference_table")  %>% 
+  rename(COD_CUPS = Codigo) %>% 
+  select(COD_CUPS, Nombre, Descripcion)
+
 
 # ----
 
@@ -91,19 +104,6 @@ all_rips          <- open_dataset(RIPS_history_file) %>%
   ) %>% 
   filter(year>=2010 & year<=2014) %>% glimpse()
 
-# Only for Brayan's code ...........
-#all_rips <- all_rips %>% 
-#  rename(sexo_rips_origi = sexo_RIPS) %>% 
-#  mutate(
-#    sexo_RIPS = case_when(
-#      sexo_rips_origi == 1 ~ "M",
-#      sexo_rips_origi == 0 ~ "F",
-#      TRUE ~ NA_character_
-#    )
-#  ) %>% 
-#  select(-sexo_rips_origi)
-# ..................................
-
 # Unique personabasicaid
 unique_pbid <- master %>% 
   select(personabasicaid) %>% 
@@ -120,6 +120,9 @@ skeleton <- expand.grid(monthly_date = aux_time, personabasicaid = aux_pbid)
 rm(aux_pbid, aux_time)
 
 # ----
+
+all_rips <- all_rips %>% 
+  left_join(ministry_CUPS_data, by="COD_CUPS") 
 
 # 4. Creating the database (balanced) of RIPS-SISBEN ---------------------------
 merged_rips <- unique_pbid %>% 
@@ -159,7 +162,20 @@ rips_est <- merged_rips %>%
     # Variables para genero
     rips_gender = if_else(sum(sexo_RIPS == "M", na.rm = TRUE) > 0, 1, 0),
     rips_female = if_else(sum(sexo_RIPS == "F", na.rm = TRUE) > 0, 1, 0),
-    rips_male   = if_else(sum(sexo_RIPS == "M", na.rm = TRUE) > 0, 1, 0)
+    rips_male   = if_else(sum(sexo_RIPS == "M", na.rm = TRUE) > 0, 1, 0),
+    
+    # Clasificacion de las consultas usando los CUPS
+    d_cons_gral = if_else(sum(MODULE == "c" & str_detect(Nombre, "GENERAL"), na.rm = TRUE) > 0, 1, 0),
+    n_cons_gral = sum(MODULE == "c" & str_detect(Nombre, "GENERAL"), na.rm = TRUE),
+    
+    d_cons_esp = if_else(sum(MODULE == "c" & str_detect(Nombre, "ESPECIAL"), na.rm = TRUE) > 0, 1, 0),
+    n_cons_esp = sum(MODULE == "c" & str_detect(Nombre, "ESPECIAL"), na.rm = TRUE),
+    
+    d_cons_primera = if_else(sum(MODULE == "c" & str_detect(Nombre, "PRIMERA"), na.rm = TRUE) > 0, 1, 0),
+    n_cons_primera = sum(MODULE == "c" & str_detect(Nombre, "PRIMERA"), na.rm = TRUE),
+    
+    d_cons_control = if_else(sum(MODULE == "c" & str_detect(Nombre, "SEGUIMIENTO|CONTROL"), na.rm = TRUE) > 0, 1, 0),
+    n_cons_control = sum(MODULE == "c" & str_detect(Nombre, "SEGUIMIENTO|CONTROL"), na.rm = TRUE)    
     
   )
 gc()
@@ -186,7 +202,9 @@ rips_est_balanced <- rips_est_balanced %>%
                   d_procedimientos, d_urgencias, d_preven, d_prenat,
                   reg_contributivo, reg_subsidiado, reg_vinculado, 
                   reg_particular, reg_otro, reg_desp_contributivo, 
-                  reg_desp_subsidiado, reg_desp_no_asegurado),
+                  reg_desp_subsidiado, reg_desp_no_asegurado, 
+                  d_cons_gral, n_cons_gral, d_cons_esp, n_cons_esp, 
+                  d_cons_primera, n_cons_primera, d_cons_control, n_cons_control),
                 ~ replace_na(., 0)))
 
 write_parquet(rips_est_balanced, file.path(data_dir, "panel_rips_s1045_t1014.parquet"))
@@ -338,7 +356,7 @@ gc()
 
 
 ################################################################################
-#  Information from 2010 to 2014
+#  Information from 2015 to 2019
 ################################################################################
 
 # Packages and folders ---------------------------------------------------------
@@ -353,6 +371,7 @@ for (paquete in paquetes) {
 #base_dir  <- "//wmedesrv/GAMMA/Christian Posso/_banrep_research/proyectos/project_transport_health"
 #base_dir  <- "D:/Steban Pineda/Documents/DIME/Transportation and health"
 base_dir  <- "Z:/Christian Posso/_banrep_research/proyectos/project_transport_health"
+#base_dir  <- "/Users/brayanpineda/Library/CloudStorage/OneDrive-Personal/Trabajo/2024_DIME/COL Health and Public Transport"
 
 project_folder <- base_dir
 data_dir       <- file.path(base_dir, "data")
@@ -400,6 +419,14 @@ PILA_history_file <- sprintf('%s/%s', project_folder, 'data/Data_labor/history_P
 # RIPS
 RIPS_history_file <- sprintf('%s/%s', project_folder, 'data/Data_health/history_RIPS.parquet') %>% glimpse
 
+# Opening the reference table of CUPS codes
+# Define path to read the reference file for CUPS codes
+excel_file <- file.path(data_dir, "Data_health/20240924 - general_diagnoses.xlsx")
+# Read the reference table of CUPS codes
+ministry_CUPS_data <- read_excel(excel_file, sheet = "ministry_CUPS_reference_table")  %>% 
+  rename(COD_CUPS = Codigo) %>% 
+  select(COD_CUPS, Nombre, Descripcion)
+
 # ----
 
 # 3. First modifications to initial databases ----------------------------------
@@ -428,19 +455,6 @@ all_rips          <- open_dataset(RIPS_history_file) %>%
 
 all_rips <- all_rips %>% collect()
 
-# Only for Brayan's code ...........
-#all_rips <- all_rips %>% 
-#  rename(sexo_rips_origi = sexo_RIPS) %>% 
-#  mutate(
-#    sexo_RIPS = case_when(
-#      sexo_rips_origi == 1 ~ "M",
-#      sexo_rips_origi == 0 ~ "F",
-#      TRUE ~ NA_character_
-#    )
-#  ) %>% 
-#  select(-sexo_rips_origi)
-# ..................................
-
 # Unique personabasicaid
 unique_pbid <- master %>% 
   select(personabasicaid) %>% 
@@ -457,6 +471,9 @@ skeleton <- expand.grid(monthly_date = aux_time, personabasicaid = aux_pbid)
 rm(aux_pbid, aux_time)
 
 # ----
+
+all_rips <- all_rips %>% 
+  left_join(ministry_CUPS_data, by="COD_CUPS") 
 
 # 4. Creating the database (balanced) of RIPS-SISBEN ---------------------------
 merged_rips <- unique_pbid %>% 
@@ -496,7 +513,21 @@ rips_est <- merged_rips %>%
     # Variables para genero
     rips_gender = if_else(sum(sexo_RIPS == "M", na.rm = TRUE) > 0, 1, 0),
     rips_female = if_else(sum(sexo_RIPS == "F", na.rm = TRUE) > 0, 1, 0),
-    rips_male   = if_else(sum(sexo_RIPS == "M", na.rm = TRUE) > 0, 1, 0)
+    rips_male   = if_else(sum(sexo_RIPS == "M", na.rm = TRUE) > 0, 1, 0),
+    
+    # Clasificacion de las consultas usando los CUPS
+    d_cons_gral = if_else(sum(MODULE == "c" & str_detect(Nombre, "GENERAL"), na.rm = TRUE) > 0, 1, 0),
+    n_cons_gral = sum(MODULE == "c" & str_detect(Nombre, "GENERAL"), na.rm = TRUE),
+    
+    d_cons_esp = if_else(sum(MODULE == "c" & str_detect(Nombre, "ESPECIAL"), na.rm = TRUE) > 0, 1, 0),
+    n_cons_esp = sum(MODULE == "c" & str_detect(Nombre, "ESPECIAL"), na.rm = TRUE),
+    
+    d_cons_primera = if_else(sum(MODULE == "c" & str_detect(Nombre, "PRIMERA"), na.rm = TRUE) > 0, 1, 0),
+    n_cons_primera = sum(MODULE == "c" & str_detect(Nombre, "PRIMERA"), na.rm = TRUE),
+    
+    d_cons_control = if_else(sum(MODULE == "c" & str_detect(Nombre, "SEGUIMIENTO|CONTROL"), na.rm = TRUE) > 0, 1, 0),
+    n_cons_control = sum(MODULE == "c" & str_detect(Nombre, "SEGUIMIENTO|CONTROL"), na.rm = TRUE)    
+    
     
   )
 gc()
@@ -523,7 +554,9 @@ rips_est_balanced <- rips_est_balanced %>%
                   d_procedimientos, d_urgencias, d_preven, d_prenat,
                   reg_contributivo, reg_subsidiado, reg_vinculado, 
                   reg_particular, reg_otro, reg_desp_contributivo, 
-                  reg_desp_subsidiado, reg_desp_no_asegurado),
+                  reg_desp_subsidiado, reg_desp_no_asegurado, 
+                  d_cons_gral, n_cons_gral, d_cons_esp, n_cons_esp, 
+                  d_cons_primera, n_cons_primera, d_cons_control, n_cons_control),
                 ~ replace_na(., 0)))
 
 write_parquet(rips_est_balanced, file.path(data_dir, "panel_rips_s1045_t1519.parquet"))
@@ -687,6 +720,7 @@ for (paquete in paquetes) {
 #base_dir  <- "//wmedesrv/GAMMA/Christian Posso/_banrep_research/proyectos/project_transport_health"
 #base_dir  <- "D:/Steban Pineda/Documents/DIME/Transportation and health"
 base_dir  <- "Z:/Christian Posso/_banrep_research/proyectos/project_transport_health"
+#base_dir  <- "/Users/brayanpineda/Library/CloudStorage/OneDrive-Personal/Trabajo/2024_DIME/COL Health and Public Transport"
 
 project_folder <- base_dir
 data_dir       <- file.path(base_dir, "data")
@@ -716,3 +750,57 @@ summary(sample_t1019)
 
 
 rm(list=ls(all=TRUE))
+
+
+# Saving the dataset in DTA format (Stata)
+
+paquetes <- c("rddensity", "haven", "writexl", "arrow", "tidyverse", "haven", "dplyr", "openxlsx", "ggplot2", "rdrobust", "cowplot", "ragg", "R.utils", "rlang", "lubridate", "crayon", "purrr")
+for (paquete in paquetes) {
+  if (!require(paquete, character.only = TRUE)) {
+    install.packages(paquete)
+    library(paquete, character.only = TRUE)
+  }
+}
+
+#base_dir  <- "//wmedesrv/GAMMA/Christian Posso/_banrep_research/proyectos/project_transport_health"
+#base_dir  <- "D:/Steban Pineda/Documents/DIME/Transportation and health"
+base_dir  <- "Z:/Christian Posso/_banrep_research/proyectos/project_transport_health"
+#base_dir  <- "/Users/brayanpineda/Library/CloudStorage/OneDrive-Personal/Trabajo/2024_DIME/COL Health and Public Transport"
+
+
+project_folder <- base_dir
+data_dir       <- file.path(base_dir, "data")
+output_folder  <- file.path(base_dir, "outputs")
+figure_folder  <- file.path(output_folder, "figures")
+
+# Initial databases ---------------------------------------------------------
+
+main_base     <- open_dataset(sprintf('%s/%s', data_dir, "panel_total_sample1045_t1019.parquet")) %>% 
+  mutate(
+    score_1015 = if_else(puntaje>10    & puntaje<=15, 1, 0),      
+    score_1520 = if_else(puntaje>15    & puntaje<=20, 1, 0),
+    score_2025 = if_else(puntaje>20    & puntaje<=25, 1, 0),
+    score_2530 = if_else(puntaje>25    & puntaje<=30.56, 1, 0),
+    score_3035 = if_else(puntaje>30.56 & puntaje<=35, 1, 0),
+    score_3540 = if_else(puntaje>35    & puntaje<=40, 1, 0),
+    score_4045 = if_else(puntaje>40    & puntaje<=45, 1, 0)
+  ) %>% 
+  collect()
+
+
+# File name to the dta
+output_file <- sprintf('%s/%s', data_dir, "panel_sample1045_t1019.dta")
+
+# Save my database on Stata format
+write_dta(main_base, output_file)
+
+rm(list=ls(all=TRUE))
+
+
+
+
+
+
+
+
+
